@@ -15,6 +15,30 @@ The team keeps historical parcel events in lakehouse storage and combines them w
 
 You will reproduce that flow end-to-end on a local Kind cluster.
 
+```mermaid
+flowchart TB
+    subgraph Host["Host machine (Docker)"]
+        PG[("PostgreSQL\nshipping_ops / fuel_index")]
+    end
+
+    subgraph Kind["Kind Kubernetes cluster"]
+        subgraph WXD["watsonx.data"]
+            UI["Lakehouse console &\nQuery workspace"]
+            Spark["Spark\n(ingestion)"]
+            Presto["Presto\n(SQL engine)"]
+            Iceberg[("Iceberg tables\nobject storage / MinIO")]
+        end
+    end
+
+    Analyst((Analyst))
+    Analyst -->|HTTPS :6443| UI
+    UI --> Spark
+    UI --> Presto
+    Spark -->|load CSV| Iceberg
+    Presto -->|read| Iceberg
+    Presto -->|federated join| PG
+```
+
 ## Prerequisites
 
 - Windows, Mac or Linux host with Docker Engine

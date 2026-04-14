@@ -2,11 +2,9 @@
 
 This repository is a follow-along demo for running **IBM watsonx.data** locally and walking through a realistic Global Parcel use case:
 
-- ingest shipping history into Iceberg
-- query operational insights with Presto
-- federate that data with external PostgreSQL fuel surcharge data
-
-Official watsonx.data installation docs: [Installing watsonx.data](https://www.ibm.com/docs/en/watsonxdata/standard/2.3.x?topic=version-installing)
+- Ingest shipping history into Iceberg
+- Query operational insights with Presto
+- Federate that data with external PostgreSQL fuel surcharge data
 
 ![Global Parcel Lakehouse Journey](assets/global-parcel-lakehouse-journey.png)
 
@@ -19,14 +17,14 @@ You will reproduce that flow end-to-end on a local Kind cluster.
 
 ## Prerequisites
 
-- Linux host with Docker Engine
+- Windows, Mac or Linux host with Docker Engine
 - `kubectl`
 - `helm`
 - `kind`
 - Python (for data generation scripts)
-- `values-secret.yaml` prepared for `watsonx.data-developer-edition-installer`
 
 ## 1) Install Tooling
+The below commands are for a Fedora Linux workstation. Please use your equivalents on other environments.
 
 ### Install kubectl
 ```bash
@@ -50,7 +48,7 @@ sudo mv ./kind /usr/local/bin/kind
 sudo setenforce 0
 ```
 
-## 2) Create and Validate Cluster
+## 2) Create and validate Kind (K8s) cluster
 
 ### Create Kind cluster
 ```bash
@@ -68,6 +66,8 @@ watch kubectl get pods -n kube-system -o wide
 ```
 
 ## 3) Install watsonx.data
+
+Official watsonx.data installation docs: [Installing watsonx.data](https://www.ibm.com/docs/en/watsonxdata/standard/2.3.x?topic=version-installing)
 
 ```bash
 cd watsonx.data-developer-edition-installer
@@ -93,6 +93,8 @@ nohup kubectl port-forward -n wxd service/ibm-lh-mds-thrift-svc 8381:8381 --addr
 ```
 
 ## 4) Follow-Along: Shipping History
+
+When energy markets swing and supply chains are stressed, carriers face higher fuel and operating costs—and those increases eventually show up in shipping rates and service levels. Understanding **where** shipments are delayed and **what** base shipping costs look like by origin helps Global Parcel explain trends to customers and plan before surcharges and delays hit the invoice. This step loads parcel history so you can analyze volume, delays, and average cost as the operational baseline.
 
 ### Generate sample shipping history
 ```bash
@@ -122,6 +124,8 @@ ORDER BY volume DESC;
 ```
 
 ## 5) Follow-Along: Add Fuel Surcharge Data (PostgreSQL)
+
+Fuel surcharges are how carriers pass through volatile diesel and energy costs: when crude prices spike or regional markets tighten—often amplified by geopolitical turmoil and broader uncertainty—surcharges move quickly, while published base rates may lag. Customers ultimately pay **base rate + surcharge** on each shipment. Federating live surcharge data with parcel history lets you see the **total invoice impact** by region instead of guessing from static list prices alone.
 
 ### Start PostgreSQL
 ```bash

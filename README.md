@@ -8,6 +8,8 @@ This repository is a follow-along demo for running **IBM watsonx.data** locally 
 
 Official watsonx.data installation docs: [Installing watsonx.data](https://www.ibm.com/docs/en/watsonxdata/standard/2.3.x?topic=version-installing)
 
+![Global Parcel Lakehouse Journey](assets/global-parcel-lakehouse-journey.png)
+
 ## Use Case
 
 Global Parcel needs better control over shipping analytics while meeting data sovereignty requirements.  

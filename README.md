@@ -178,6 +178,14 @@ JOIN fuel_prices.public.fuel_index f ON s.region = f.region
 LIMIT 10;
 ```
 
+## Recap: what we learned and why it matters
+
+**What you walked through:** You stored parcel shipping history in an **Iceberg**-backed lakehouse, explored delays and cost patterns with **Presto**, and **federated** that history with live fuel surcharge rows in **PostgreSQL**—so a single query could express **total invoice impact** (base rate plus regional surcharge), not just one side of the story.
+
+**Why that matters:** When energy and logistics costs are volatile, customers and finance teams need answers tied to **actual billable totals**, not siloed tables. Combining governed historical events with current surcharge data supports planning, pricing conversations, and operational transparency without re‑ETLing everything whenever fuel indices change.
+
+**Hybrid and open:** **watsonx.data** fits this pattern by design: a **hybrid** lakehouse lets you keep authoritative parcel history in open table formats on object storage while **joining** systems of record (here, PostgreSQL) where they already live. That openness—**Apache Iceberg**, **Presto**-class SQL engines, and standard connectivity to databases you control—helps teams **keep data where policy requires**, avoid lock‑in, and run analytics **on premises or in a region you choose**, which directly addresses **data sovereignty** and residency worries that come with shipping sensitive operational data to opaque or distant clouds alone.
+
 ## Operations
 
 ### Pause or resume local cluster

@@ -1,0 +1,2 @@
+CREATE SCHEMA IF NOT EXISTS iceberg_data.default
+WITH (location = 's3a://iceberg-bucket/default');

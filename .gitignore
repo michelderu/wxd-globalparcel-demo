@@ -1,0 +1,30 @@
+# Python caches and virtual environments
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+.python-version
+
+# Tooling and editor artifacts
+.DS_Store
+.idea/
+.vscode/
+
+# Logs and runtime output
+*.log
+nohup.out
+
+# Local certificates / trust material
+*.jks
+*.cert
+*.pem
+*.key
+
+# Generated demo datasets
+*.parquet
+shipping_data.csv
+
+# Local service artifacts
+presto/
+watsonx.data-developer-edition-installer/

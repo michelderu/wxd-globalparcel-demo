@@ -1,0 +1,11 @@
+{
+  "application_details": {
+    "application": "s3a://iceberg-bucket/system/health_check.py",
+    "conf": {
+      "spark.hadoop.fs.s3a.bucket.iceberg-bucket.access.key": "dummyvalue",
+      "spark.hadoop.fs.s3a.bucket.iceberg-bucket.secret.key": "dummyvalue",
+      "spark.hadoop.fs.s3a.bucket.iceberg-bucket.aws.credentials.provider": "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider"
+    }
+  },
+  "deploy_mode": "local"
+}

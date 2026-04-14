@@ -1,0 +1,10 @@
+pyhive[presto]
+presto-python-client
+pandas
+pyarrow
+minio
+requests
+urllib3
+pyopenssl
+sqlalchemy
+psycopg2-binary

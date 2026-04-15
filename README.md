@@ -1,6 +1,6 @@
 # Global Parcel Hybrid Lakehouse Demo
 
-Global Parcel is looking to regain control over their data in order to address sovereignty concerns. In parallel they need to navigate the turmoil in the world with increasing fuel prices. They tun to watsonx.data for a solution.
+Global Parcel is looking to regain control over their data in order to address sovereignty concerns. In parallel they need to navigate the turmoil in the world with increasing fuel prices. They turn to watsonx.data for a solution.
 
 ![Global Parcel Lakehouse Journey](assets/global-parcel-lakehouse-journey.png)
 
@@ -53,7 +53,7 @@ This repository is a follow-along demo for running **IBM watsonx.data** locally 
 - `kind`
 - Python (for data generation scripts)
 
-## 1) Install Tooling
+## 1) 🧰 Install Tooling
 The below commands are for a Fedora Linux workstation. Please use your equivalents on other environments.
 
 This demo runs on a local Kubernetes environment, so you first need the standard cluster tooling:
@@ -85,7 +85,7 @@ sudo mv ./kind /usr/local/bin/kind
 sudo setenforce 0
 ```
 
-## 2) Create and validate Kind (K8s) cluster
+## 2) ☸️ Create and validate Kind (K8s) cluster
 
 This step creates the local Kubernetes control plane that hosts watsonx.data. Before installing anything, confirm core system pods are healthy so later failures are easier to isolate.
 
@@ -106,7 +106,7 @@ watch kubectl get pods -n kube-system -o wide
 
 The readiness script performs quick host-level checks (for example, binaries, connectivity, and basic runtime prerequisites) to catch local setup issues early.
 
-## 3) Install watsonx.data
+## 3) 🚀 Install watsonx.data
 
 Official watsonx.data installation docs: [Installing watsonx.data](https://www.ibm.com/docs/en/watsonxdata/standard/2.3.x?topic=version-installing)
 
@@ -133,7 +133,7 @@ nohup kubectl port-forward -n wxd service/ibm-lh-minio-svc 9001:9001 --address 0
 nohup kubectl port-forward -n wxd service/ibm-lh-mds-thrift-svc 8381:8381 --address 0.0.0.0 2>&1 &
 ```
 
-## 4) Follow-Along: Shipping History
+## 4) 📦 Follow-Along: Shipping History
 
 When energy markets swing and supply chains are stressed, carriers face higher fuel and operating costs—and those increases eventually show up in shipping rates and service levels. Understanding **where** shipments are delayed and **what** base shipping costs look like by origin helps Global Parcel explain trends to customers and plan before surcharges and delays hit the invoice. This step loads parcel history so you can analyze volume, delays, and average cost as the operational baseline.
 
@@ -164,7 +164,7 @@ GROUP BY origin_city
 ORDER BY volume DESC;
 ```
 
-## 5) Follow-Along: Add Fuel Surcharge Data (PostgreSQL)
+## 5) ⛽ Follow-Along: Add Fuel Surcharge Data (PostgreSQL)
 
 Fuel surcharges are how carriers pass through volatile diesel and energy costs: when crude prices spike or regional markets tighten—often amplified by geopolitical turmoil and broader uncertainty—surcharges move quickly, while published base rates may lag. Customers ultimately pay **base rate + surcharge** on each shipment. Federating live surcharge data with parcel history lets you see the **total invoice impact** by region instead of guessing from static list prices alone.
 
@@ -219,7 +219,7 @@ JOIN fuel_prices.public.fuel_index f ON s.region = f.region
 LIMIT 10;
 ```
 
-## Recap: what we learned and why it matters
+## 🥇 Recap: what we learned and why it matters
 
 **What you walked through:** You stored parcel shipping history in an **Iceberg**-backed lakehouse, explored delays and cost patterns with **Presto**, and **federated** that history with live fuel surcharge rows in **PostgreSQL**—so a single query could express **total invoice impact** (base rate plus regional surcharge), not just one side of the story.
 

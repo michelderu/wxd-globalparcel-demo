@@ -1,32 +1,32 @@
 # Global Parcel Hybrid Lakehouse Demo
 
-This repository is a follow-along demo for running **IBM watsonx.data** locally and walking through a realistic Global Parcel use case:
-
-- Ingest shipping history into Iceberg
-- Query operational insights with Presto
-- Federate that data with external PostgreSQL fuel surcharge data
+Global Parcel is looking to regain control over their data in order to address sovereignty concerns. In parallel they need to navigate the turmoil in the world with increasing fuel prices. They tun to watsonx.data for a solution.
 
 ![Global Parcel Lakehouse Journey](assets/global-parcel-lakehouse-journey.png)
 
-## Use Case
+## About this demo
 
-Global Parcel needs better control over shipping analytics while meeting data sovereignty requirements.  
 The team keeps historical parcel events in lakehouse storage and combines them with live fuel surcharge data from PostgreSQL to calculate real invoice impact.
 
 You will reproduce that flow end-to-end on a local Kind cluster.
 
 ```mermaid
 flowchart TB
-    subgraph Host["Host machine (Docker)"]
-        PG[("PostgreSQL\nshipping_ops / fuel_index")]
+    subgraph DB["Fuel Surge Pricing"]
+        PG[("PostgreSQL
+        shipping_ops / fuel_index")]
     end
 
-    subgraph Kind["Kind Kubernetes cluster"]
-        subgraph WXD["watsonx.data"]
-            UI["Lakehouse console &\nQuery workspace"]
-            Spark["Spark\n(ingestion)"]
-            Presto["Presto\n(SQL engine)"]
-            Iceberg[("Iceberg tables\nobject storage / MinIO")]
+    subgraph K8s["Kubernetes cluster"]
+        subgraph wxd["watsonx.data Lakehouse"]
+            UI["Lakehouse console &
+            Query workspace"]
+            Spark["Spark
+            (ingestion)"]
+            Presto["Presto
+            (SQL engine)"]
+            Iceberg[("Iceberg tables
+            object storage / MinIO")]
         end
     end
 
@@ -34,10 +34,16 @@ flowchart TB
     Analyst -->|HTTPS :6443| UI
     UI --> Spark
     UI --> Presto
-    Spark -->|load CSV| Iceberg
+    Spark -->|Load Shipping History| Iceberg
     Presto -->|read| Iceberg
     Presto -->|federated join| PG
 ```
+
+This repository is a follow-along demo for running **IBM watsonx.data** locally and walking through a realistic Global Parcel use case:
+
+- Ingest shipping history into Iceberg
+- Query operational insights with Presto
+- Federate that data with external PostgreSQL fuel surcharge data
 
 ## Prerequisites
 
@@ -49,6 +55,13 @@ flowchart TB
 
 ## 1) Install Tooling
 The below commands are for a Fedora Linux workstation. Please use your equivalents on other environments.
+
+This demo runs on a local Kubernetes environment, so you first need the standard cluster tooling:
+- `kubectl` to inspect and troubleshoot cluster resources.
+- `helm` to install watsonx.data charts and dependencies.
+- `kind` to run Kubernetes locally in Docker.
+
+If SELinux blocks local container or volume behavior in your environment, set it to permissive temporarily for the installation step.
 
 ### Install kubectl
 ```bash
@@ -74,6 +87,8 @@ sudo setenforce 0
 
 ## 2) Create and validate Kind (K8s) cluster
 
+This step creates the local Kubernetes control plane that hosts watsonx.data. Before installing anything, confirm core system pods are healthy so later failures are easier to isolate.
+
 ### Create Kind cluster
 ```bash
 kind create cluster --name wxd
@@ -88,6 +103,8 @@ watch kubectl get pods -n kube-system -o wide
 ```bash
 ./host_readiness.sh
 ```
+
+The readiness script performs quick host-level checks (for example, binaries, connectivity, and basic runtime prerequisites) to catch local setup issues early.
 
 ## 3) Install watsonx.data
 

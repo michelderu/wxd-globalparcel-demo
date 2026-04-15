@@ -31,3 +31,7 @@ Then create a new application using the console with the following payload:
   "deploy_mode": "local"
 }
 ```
+
+# In case the schemas are not visible
+CREATE SCHEMA IF NOT EXISTS iceberg_data.default
+WITH (location = 's3a://iceberg-bucket/default');

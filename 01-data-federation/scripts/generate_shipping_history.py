@@ -1,4 +1,7 @@
-'''Generate synthetic shipping_history.csv / .parquet for demo purposes.'''
+'''Generate synthetic shipping_history.csv / .parquet for demo purposes.
+
+Run with the shell working directory set to `01-data-federation/` so outputs land there.
+'''
 
 import argparse
 import csv
@@ -99,7 +102,8 @@ assert set(EUROPEAN_CITIES) == _CITIES_EU_WEST | _CITIES_EU_SOUTH | _CITIES_EU_N
 
 STATUSES = ["Delivered", "In-Transit", "Delayed"]
 
-OUTPUT_DIR = Path(__file__).resolve().parent
+# Write outputs to the process working directory (run from `01-data-federation/`).
+OUTPUT_DIR = Path.cwd()
 OUTPUT_CSV = OUTPUT_DIR / "shipping_history.csv"
 OUTPUT_PARQUET = OUTPUT_DIR / "shipping_history.parquet"
 NUM_ROWS = 10_000

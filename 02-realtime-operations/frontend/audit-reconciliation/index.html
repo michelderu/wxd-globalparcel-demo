@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Global Parcel - Audit/Reconciliation</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Global Parcel</p>
+          <h1>Audit/Reconciliation View (Cassandra)</h1>
+          <p class="subtitle">Source-of-truth read path for dispute workflows</p>
+        </div>
+        <div class="pill ok">Cassandra source: connected</div>
+      </header>
+
+      <section class="search-card">
+        <div class="field">
+          <label for="parcelId">Parcel ID</label>
+          <input id="parcelId" value="PCL-000001" />
+        </div>
+        <div class="field">
+          <label for="ticketId">Dispute ticket</label>
+          <input id="ticketId" value="DSP-2026-00421" />
+        </div>
+        <button id="loadBtn">Load Source-Of-Truth Timeline</button>
+      </section>
+
+      <main class="grid">
+        <section class="card">
+          <h2>Dispute Summary</h2>
+          <div class="kv">
+            <div><span>Parcel</span><strong id="summaryParcel">PCL-000001</strong></div>
+            <div><span>Claim</span><strong>Customer says "Not delivered"</strong></div>
+            <div><span>Customer app status</span><strong id="appStatus">OUT_FOR_DELIVERY</strong></div>
+            <div><span>Cassandra latest status</span><strong id="truthStatus" class="ok">DELIVERED</strong></div>
+            <div><span>Reconciliation result</span><strong id="reconResult" class="warn">Mismatch detected</strong></div>
+            <div><span>Resolution SLA</span><strong>15 minutes</strong></div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Audit Integrity Signals</h2>
+          <div class="signals">
+            <div class="signal">
+              <p>Write-path consistency</p>
+              <strong class="ok">Pass</strong>
+              <small>No missing sequence in partition</small>
+            </div>
+            <div class="signal">
+              <p>Index lag impact</p>
+              <strong class="warn">Likely</strong>
+              <small>Last indexed event older than Cassandra latest</small>
+            </div>
+            <div class="signal">
+              <p>Manual action</p>
+              <strong class="ok">Recommended</strong>
+              <small>Trigger customer notification refresh</small>
+            </div>
+          </div>
+        </section>
+
+        <section class="card wide">
+          <h2>Parcel Route Map (Cassandra Geo Path)</h2>
+          <div id="routeMap"></div>
+        </section>
+
+        <section class="card wide">
+          <h2>Cassandra Timeline (Source of Truth)</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Event timestamp (UTC)</th>
+                <th>Status</th>
+                <th>Hub</th>
+                <th>Region</th>
+                <th>Geo position</th>
+                <th>Exception</th>
+              </tr>
+            </thead>
+            <tbody id="timelineRows"></tbody>
+          </table>
+        </section>
+
+        <section class="card wide">
+          <h2>Audit Notes</h2>
+          <textarea id="auditNotes" rows="5">Source-of-truth confirms final delivery event in Cassandra. Customer-facing view is stale (likely index lag). Recommend push refresh and close ticket after acknowledgment.</textarea>
+          <div class="actions">
+            <button class="secondary">Export Audit Snapshot</button>
+            <button id="resolveBtn">Mark Ticket Resolved</button>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script src="./main.js"></script>
+  </body>
+</html>

@@ -1,225 +1,106 @@
-# Global Parcel Hybrid Lakehouse Demo
+# Global Parcel Hybrid Lakehouse — workshop series
 
-This repository is a follow-along demo for running **IBM watsonx.data** locally and walking through a realistic Global Parcel use case:
+Global Parcel wants **control and clarity over shipping data** while meeting **data sovereignty** expectations. At the same time, **fuel and logistics costs swing with world events**—published base rates do not tell the whole story unless you can reconcile **historic parcel flows** with **current surcharge regimes** in governed systems you operate.
 
-- Ingest shipping history into Iceberg
-- Query operational insights with Presto
-- Federate that data with external PostgreSQL fuel surcharge data
+They turn to the **watsonx** stack (**watsonx.data** locally for this curriculum) so analytics stay **hybrid, open-table, and federated**, not locked in a distant black box.
 
-![Global Parcel Lakehouse Journey](assets/global-parcel-lakehouse-journey.png)
+This repository expands the narrative into a **multi-session** workshop: foundational lakehouse federation, realtime operations, then AI acceleration.
 
-## Use Case
+![Global Parcel lakehouse journey](01-data-federation/assets/global-parcel-lakehouse-journey.png)
 
-Global Parcel needs better control over shipping analytics while meeting data sovereignty requirements.  
-The team keeps historical parcel events in lakehouse storage and combines them with live fuel surcharge data from PostgreSQL to calculate real invoice impact.
+---
 
-You will reproduce that flow end-to-end on a local Kind cluster.
+## Situation
+
+- **Operational data** spans historical parcel events, regions, carriers, delays, and cost components.
+- **Policy and sovereignty** discourage “send everything to one opaque cloud”; teams need **regions and platforms they can justify**.
+- **Market volatility** (energy, disruptions, geopolitical stress) pushes **fuel surcharges** and operational costs faster than analysts can reconcile spreadsheet extracts.
+
+---
+
+## Use case
+
+Build a **hybrid lakehouse** pattern on a **local Kubernetes (kind)** developer footprint:
+
+1. Keep **parcel history** in **Apache Iceberg** on **object storage** backed by watsonx.data.
+2. Run **SQL (Presto-class engines)** over that history for latency, volume, and cost patterns.
+3. **Federate live surcharge reference data** from **PostgreSQL** so invoice-style questions (**base rate + surcharge** by geography) resolve in **one governed query**.
+
+---
+
+## Business case
+
+| Stakeholder concern | How this demo answers it |
+| --- | --- |
+| Finance / billing | Exposure to **true billable totals**, not stale list prices divorced from surcharge tables. |
+| Operations | **Where delays and cost pressure cluster** before they hit customer SLAs and margin. |
+| Trust & compliance | **Data stays under patterns you approve**—open table formats, standard SQL, JDBC-style federation—not a single proprietary dumping ground. |
+
+---
+
+## Lab journey (sessions)
+
+Work in order unless a session states otherwise:
+
+| Session | Focus | README |
+| --- | --- | --- |
+| **01 — Data federation** | watsonx.data on kind, Iceberg ingest, Presto queries, **PostgreSQL federation** (`fuel_index` + shipping history). | [`01-data-federation/README.md`](01-data-federation/README.md) |
+| **02 — Realtime operations** | Placeholder for streaming / realtime operational patterns atop the same storyline (Kafka, Flink-compatible flows, caches, alerts—exact scope TBD when published). | [`02-realtime-operations/README.md`](02-realtime-operations/README.md) |
+| **03 — Accelerate AI** | **watsonx Orchestrate** (Developer Edition + ADK) for agentic automation on top of curated data products. | [`03-accelerate-ai/README.md`](03-accelerate-ai/README.md) |
 
 ```mermaid
-flowchart TB
-    subgraph Host["Host machine (Docker)"]
-        PG[("PostgreSQL\nshipping_ops / fuel_index")]
-    end
-
-    subgraph Kind["Kind Kubernetes cluster"]
-        subgraph WXD["watsonx.data"]
-            UI["Lakehouse console &\nQuery workspace"]
-            Spark["Spark\n(ingestion)"]
-            Presto["Presto\n(SQL engine)"]
-            Iceberg[("Iceberg tables\nobject storage / MinIO")]
-        end
-    end
-
-    Analyst((Analyst))
-    Analyst -->|HTTPS :6443| UI
-    UI --> Spark
-    UI --> Presto
-    Spark -->|load CSV| Iceberg
-    Presto -->|read| Iceberg
-    Presto -->|federated join| PG
+flowchart LR
+  S01["01 Data federation\nIceberg • Presto • Postgres"]
+  S02["02 Realtime ops\nplanned"]
+  S03["03 Accelerate AI\nwatsonx Orchestrate"]
+  S01 --> S02
+  S02 --> S03
 ```
 
-## Prerequisites
+---
 
-- Windows, Mac or Linux host with Docker Engine
-- `kubectl`
-- `helm`
-- `kind`
-- Python (for data generation scripts)
+## Install prerequisites (all sessions)
 
-## 1) Install Tooling
-The below commands are for a Fedora Linux workstation. Please use your equivalents on other environments.
+Fulfill these **before** opening session-specific guides:
 
-### Install kubectl
-```bash
-sudo dnf install kubernetes-client
-```
+| Area | Requirement |
+| --- | --- |
+| **Containers & Kubernetes** | A supported **Docker** or **Podman** path, **`kubectl`**, **`helm`**, and **`kind`**. Follow **[container-fundamentals](https://github.com/michelderu/container-fundamentals)** ([course overview](https://github.com/michelderu/container-fundamentals#how-to-use-this-material)). |
+| **Python** | **3.11+**. A **virtual environment at this repository root** (`.venv`) |
 
-### Install Helm
-```bash
-sudo dnf install helm
-```
+---
 
-### Install Kind
-```bash
-curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.31.0/kind-linux-amd64
-chmod +x ./kind
-sudo mv ./kind /usr/local/bin/kind
-```
+## Test for readiness
 
-### Set SELinux permissive (if required for your setup)
-```bash
-sudo setenforce 0
-```
-
-## 2) Create and validate Kind (K8s) cluster
-
-### Create Kind cluster
-```bash
-kind create cluster --name wxd
-```
-
-### Check Kubernetes readiness
-```bash
-watch kubectl get pods -n kube-system -o wide
-```
-
-### Optional host readiness check
-```bash
-./host_readiness.sh
-```
-
-## 3) Install watsonx.data
-
-Official watsonx.data installation docs: [Installing watsonx.data](https://www.ibm.com/docs/en/watsonxdata/standard/2.3.x?topic=version-installing)
+Use this sanity block on your machine after aligning with **container-fundamentals** and creating **repository root `.venv`**.
 
 ```bash
-cd watsonx.data-developer-edition-installer
-helm dependency update
-helm upgrade --install wxd . \
-  -f values.yaml \
-  -f values-secret.yaml \
-  --namespace wxd \
-  --create-namespace \
-  --timeout 10m
+# Container runtime — at least one path should succeed
+command -v docker  && docker version
+command -v podman && podman version
+command -v docker  && docker info >/dev/null 2>&1 && echo "docker: daemon OK" || true
+command -v podman  && podman info >/dev/null 2>&1 && echo "podman: reachable" || true
+
+# Cluster tooling
+kubectl version --client
+helm version
+kind version
 ```
 
-### Check watsonx.data readiness
-```bash
-watch kubectl get pods -n wxd
-```
-
-### Port-forward required services
-```bash
-nohup kubectl port-forward -n wxd service/lhconsole-ui-svc 6443:443 --address 0.0.0.0 2>&1 &
-nohup kubectl port-forward -n wxd service/ibm-lh-minio-svc 9001:9001 --address 0.0.0.0 2>&1 &
-nohup kubectl port-forward -n wxd service/ibm-lh-mds-thrift-svc 8381:8381 --address 0.0.0.0 2>&1 &
-```
-
-## 4) Follow-Along: Shipping History
-
-When energy markets swing and supply chains are stressed, carriers face higher fuel and operating costs—and those increases eventually show up in shipping rates and service levels. Understanding **where** shipments are delayed and **what** base shipping costs look like by origin helps Global Parcel explain trends to customers and plan before surcharges and delays hit the invoice. This step loads parcel history so you can analyze volume, delays, and average cost as the operational baseline.
-
-### Generate sample shipping history
-```bash
-python 01_generate_shipping_history.py
-```
-
-### Load CSV into watsonx.data
-1. Open `https://localhost:6443/` and sign in (`ibmlhadmin` / `password`).
-2. Go to `Infrastructure manager` -> `Add component`.
-3. Select `IBM Spark`, click `Next`.
-4. Set display name (for example `spark-01`) and associate catalog `iceberg_bucket`.
-5. Go to `Data manager` -> `iceberg_data` -> menu (`...`) -> `Create schema`.
-6. Name schema `shipping`.
-7. Under `iceberg_bucket`, use menu (`...`) -> `Create table from ...`.
-8. Select generated `shipping_history.csv`.
-9. Set target table name `shipping`, pick Spark engine, click `Done`.
-
-### Query delayed shipments
-In `Query workspace`, run:
-
-```sql
-SELECT origin_city, COUNT(*) AS volume, AVG(shipping_cost) AS avg_cost
-FROM iceberg_data.shipping.shipping
-WHERE status = 'Delayed'
-GROUP BY origin_city
-ORDER BY volume DESC;
-```
-
-## 5) Follow-Along: Add Fuel Surcharge Data (PostgreSQL)
-
-Fuel surcharges are how carriers pass through volatile diesel and energy costs: when crude prices spike or regional markets tighten—often amplified by geopolitical turmoil and broader uncertainty—surcharges move quickly, while published base rates may lag. Customers ultimately pay **base rate + surcharge** on each shipment. Federating live surcharge data with parcel history lets you see the **total invoice impact** by region instead of guessing from static list prices alone.
-
-### Start PostgreSQL
-```bash
-docker run --name shipping-postgres \
-  -e POSTGRES_PASSWORD=postgres \
-  -e POSTGRES_DB=shipping_ops \
-  -p 5432:5432 \
-  -d postgres:latest
-```
-
-Get a connection string usable from watsonx.data:
+Now create the Python virtual environment:
 
 ```bash
-printf 'postgresql://postgres:postgres@%s:5432/shipping_ops\n' "$(hostname -I | awk '{print $1}')"
+python -m venv .venv
+source .venv/bin/activate      # On Windows: .venv\Scripts\activate
+
+pip install --upgrade pip
 ```
 
-### Generate and load fuel data
-```bash
-python 06_generate_fuel_data.py
-```
+Great! You're ready for the next steps!
+---
 
-### Add PostgreSQL as a federated source
-1. Go to `Infrastructure manager` -> `Add component`.
-2. Select `PostgreSQL`.
-3. Enter:
-   - Display name: `Fuel surge pricing`
-   - Database name: `shipping_ops`
-   - Hostname: your host IP from command above
-   - Port: `5432`
-   - Username: `postgres`
-   - Password: `postgres`
-4. Click `Test connection`.
-5. Enable `Associate catalog`.
-6. Name catalog `fuel_index`.
-7. Click `Create`.
+## Quick start pointer
 
-### Associate catalog with Presto
-In `Infrastructure manager`, hover catalog -> `Manage associations` -> select Presto -> `Save and restart engine`.
+Begin with [**`01-data-federation/README.md`**](01-data-federation/README.md): environment setup (`cd 01-data-federation`, generators, lakehouse UI, Postgres federation SQL).
 
-### Query combined shipping + fuel surcharge impact
-```sql
-SELECT
-  s.package_id,
-  s.region,
-  s.shipping_cost AS base_rate,
-  f.fuel_surcharge,
-  (s.shipping_cost + f.fuel_surcharge) AS total_invoice
-FROM iceberg_data.shipping.shipping s
-JOIN fuel_prices.public.fuel_index f ON s.region = f.region
-LIMIT 10;
-```
-
-## Recap: what we learned and why it matters
-
-**What you walked through:** You stored parcel shipping history in an **Iceberg**-backed lakehouse, explored delays and cost patterns with **Presto**, and **federated** that history with live fuel surcharge rows in **PostgreSQL**—so a single query could express **total invoice impact** (base rate plus regional surcharge), not just one side of the story.
-
-**Why that matters:** When energy and logistics costs are volatile, customers and finance teams need answers tied to **actual billable totals**, not siloed tables. Combining governed historical events with current surcharge data supports planning, pricing conversations, and operational transparency without re‑ETLing everything whenever fuel indices change.
-
-**Hybrid and open:** **watsonx.data** fits this pattern by design: a **hybrid** lakehouse lets you keep authoritative parcel history in open table formats on object storage while **joining** systems of record (here, PostgreSQL) where they already live. That openness—**Apache Iceberg**, **Presto**-class SQL engines, and standard connectivity to databases you control—helps teams **keep data where policy requires**, avoid lock‑in, and run analytics **on premises or in a region you choose**, which directly addresses **data sovereignty** and residency worries that come with shipping sensitive operational data to opaque or distant clouds alone.
-
-## Operations
-
-### Pause or resume local cluster
-```bash
-docker stop wxd-control-plane
-docker start wxd-control-plane
-```
-
-### Tear down everything
-```bash
-kind delete cluster --name wxd
-docker system prune -a
-```
+Then open [**`02-realtime-operations/README.md`**](02-realtime-operations/README.md) once published, followed by [**`03-accelerate-ai/README.md`**](03-accelerate-ai/README.md).

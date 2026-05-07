@@ -1,30 +1,28 @@
-# Python caches and virtual environments
+# Virtual environments (repository root only for this workspace)
+.venv/
+venv/
+
+# Python bytecode
 __pycache__/
 *.py[cod]
 *.pyo
-.venv/
-venv/
-.python-version
 
-# Tooling and editor artifacts
+# Stray generator output if cwd was repository root by mistake
+fuel_surcharge.csv
+shipping_history.csv
+*.parquet
+
+# Editor / OS
 .DS_Store
 .idea/
-.vscode/
 
 # Logs and runtime output
 *.log
 nohup.out
 
-# Local certificates / trust material
-*.jks
-*.cert
-*.pem
-*.key
-
-# Generated demo datasets
-*.parquet
-shipping_data.csv
-
 # Local service artifacts
 presto/
 watsonx.data-developer-edition-installer/
+
+# Producer data
+generated/

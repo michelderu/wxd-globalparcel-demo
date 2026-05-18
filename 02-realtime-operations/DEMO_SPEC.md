@@ -159,6 +159,13 @@ Global Parcel processes millions of shipment events. Existing systems handle eit
   - **OpenSearch:** tune shards/replicas for query and aggregation growth
 - Summarize outcomes and Q&A.
 
+### Implementation anchors (runbook alignment)
+
+- Seed data artifact: `generated/parcel_events_seed.cql`
+- Audit UI: `http://localhost:8080/audit-ui/`
+- Customer tracking UI: `http://localhost:8080/customer-ui/`
+- OpenSearch dashboard import: `opensearch-dashboards/globalparcel-ops-dashboard.ndjson`
+
 ---
 
 ## 9) Success criteria

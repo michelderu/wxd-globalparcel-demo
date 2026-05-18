@@ -44,20 +44,16 @@ Work in order unless a session states otherwise:
 
 | Session | Focus | README |
 | --- | --- | --- |
-| **01 — Data federation** | watsonx.data on kind, Iceberg ingest, Presto queries, **PostgreSQL federation** (`fuel_index` + shipping history). | [`01-data-federation/README.md`](01-data-federation/README.md) |
-| **02 — Realtime operations** | Placeholder for streaming / realtime operational patterns atop the same storyline (Kafka, Flink-compatible flows, caches, alerts—exact scope TBD when published). | [`02-realtime-operations/README.md`](02-realtime-operations/README.md) |
+| **01 — Data federation** | watsonx.data on kind, Iceberg ingest, Presto queries, **PostgreSQL federation** (`shipping_ops.public.fuel_surcharge` + shipping history). | [`01-data-federation/README.md`](01-data-federation/README.md) |
+| **02 — Realtime operations** | Live parcel events with Cassandra (authoritative ledger) + OpenSearch (customer-facing search), including audit and tracking UIs. | [`02-realtime-operations/README.md`](02-realtime-operations/README.md) |
 | **03 — Accelerate AI** | **watsonx Orchestrate** (Developer Edition + ADK) for agentic automation on top of curated data products. | [`03-accelerate-ai/README.md`](03-accelerate-ai/README.md) |
 
-```mermaid
-flowchart LR
-  S01["01 Data federation\nIceberg • Presto • Postgres"]
-  S02["02 Realtime ops\nplanned"]
-  S03["03 Accelerate AI\nwatsonx Orchestrate"]
-  S01 --> S02
-  S02 --> S03
-```
-
 ---
+
+## Delivery modes
+
+- **Live demo mode (time-boxed):** run each session's minimum path and expected checks only.
+- **Self-paced mode (deep dive):** run the full steps, optional checks, and extension notes.
 
 ## Install prerequisites (all sessions)
 
@@ -103,4 +99,4 @@ Great! You're ready for the next steps!
 
 Begin with [**`01-data-federation/README.md`**](01-data-federation/README.md): environment setup (`cd 01-data-federation`, generators, lakehouse UI, Postgres federation SQL).
 
-Then open [**`02-realtime-operations/README.md`**](02-realtime-operations/README.md) once published, followed by [**`03-accelerate-ai/README.md`**](03-accelerate-ai/README.md).
+Then continue with [**`02-realtime-operations/README.md`**](02-realtime-operations/README.md), followed by [**`03-accelerate-ai/README.md`**](03-accelerate-ai/README.md).

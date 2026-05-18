@@ -1,6 +1,8 @@
 # Global Parcel - 02 Realtime operations
 
-Part of the **[workshop overview](../README.md)**.
+<p align="center">
+  <img src="assets/global-parcel-realtime-operations.png" alt="Global Parcel Demo - Realtime Operations" width="100%">
+</p>
 
 This session expands the Global Parcel story into **transactional reliability at operational speed** on **IBM watsonx.data**, leveraging fit-for-purpose engines in one governed data platform:
 
@@ -113,6 +115,18 @@ source ../.venv/bin/activate
 python --version
 ```
 
+### Choose your pace
+
+- **Live demo mode (15-20 minutes):** follow steps `1-3`, `6-11`, `13`, and `15` to show the full story quickly.
+- **Self-paced mode:** run every numbered step and inspect intermediate outputs/queries.
+
+### Fast path for live demo (15 minutes)
+
+1. Start Cassandra, create schema/table, and seed static data.
+2. Start API and show `/audit-ui/` with one seeded parcel (`PCL-000001`).
+3. Start OpenSearch and stream with `--index-opensearch`.
+4. Show OpenSearch `_count` growth and open `/customer-ui/` with `PCL-LIVE-000001`.
+
 ### Part 1 - Cassandra transactional ledger (authoritative backend)
 
 For this workshop iteration, Cassandra is the transactional engine baseline.
@@ -127,6 +141,7 @@ docker compose ps # check for container startup
 2) Confirm Cassandra is up:
 
 ```bash
+docker compose logs cassandra -f
 docker compose exec cassandra nodetool status
 ```
 
@@ -171,7 +186,7 @@ python scripts/generate_parcel_events.py --parcels 60
 ```
 
 This creates:
-- `generated/parcel_journeys.csv` (easy to inspect)
+- `generated/parcel_events.csv` (easy to inspect)
 - `generated/parcel_events_seed.cql` (ready for bulk load)
 
 This dataset producer emits plausible multi-hop journeys across major parcel hubs (for example: Paris -> Frankfurt -> New York -> Chicago, or Tokyo -> Hong Kong -> Singapore -> Mumbai -> Dubai -> Paris) with consistent latitude/longitude values per event.
@@ -337,3 +352,13 @@ flowchart TB
     O2 --> O3[Customer Tracking UI]
     O3 --> O4[Fast status + timeline lookup]
 ```
+
+---
+
+## Handoff to session 03
+
+You now have both sides of the Global Parcel story:
+- **governed historical + surcharge context** (session 01)
+- **live operational tracking + exceptions** (this session)
+
+Continue with [`../03-accelerate-ai/README.md`](../03-accelerate-ai/README.md) to layer agentic workflows on top of these signals.

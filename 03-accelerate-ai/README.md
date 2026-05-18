@@ -1,10 +1,21 @@
 # Global Parcel — Accelerate AI (watsonx Orchestrate)
 
-Part of the **[workshop overview](../README.md)**. Session **02** (realtime operations) is planned in [`02-realtime-operations`](../02-realtime-operations/README.md).
+Part of the **[workshop overview](../README.md)** and follows [`02-realtime-operations`](../02-realtime-operations/README.md).
 
-This module builds on the lakehouse work in [`01-data-federation`](../01-data-federation/README.md) by moving into **[IBM watsonx Orchestrate](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base)** — agentic workflows, tools, and orchestration. The focus here is how to run a **local Developer Edition** on your workstation using the **Agent Development Kit (ADK)**.
+This module builds on:
+- session 01 federated cost context (`shipping_history` + `fuel_surcharge`)
+- session 02 live operational signals (parcel status + exceptions)
+
+Then it moves into **[IBM watsonx Orchestrate](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base)** to show agentic workflows, tools, and orchestration on top of those data products.
 
 Official ADK and Developer Edition documentation live on **[developer.watson-orchestrate.ibm.com](https://developer.watson-orchestrate.ibm.com/)** (see also the [documentation index](https://developer.watson-orchestrate.ibm.com/llms.txt)).
+
+---
+
+## How to use this session
+
+- **Live demo mode:** use a preconfigured `.env`, run `orchestrate server start`, and show one agent flow.
+- **Self-paced mode:** complete full `.env` setup, optional features, and remote environment configuration.
 
 ---
 
@@ -36,7 +47,7 @@ The full install and `.env` reference is in **[Installing watsonx Orchestrate De
 
 ## 1) Install the ADK (CLI)
 
-In a virtual environment:
+In a virtual environment (reuse repository-root `.venv` if you already have it):
 
 ```bash
 python -m venv .venv

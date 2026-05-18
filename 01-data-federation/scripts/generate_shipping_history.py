@@ -33,7 +33,7 @@ EUROPEAN_CITIES = [
     "Istanbul", "Izmir", "Ankara",
 ]
 
-# Aligns with 06_generate_fuel_data.py / fuel_index.region for hybrid joins (EU_NORTH, EU_SOUTH, EU_WEST).
+# Aligns with generate_fuel_surcharge.py / fuel_surcharge.region for hybrid joins (EU_NORTH, EU_SOUTH, EU_WEST).
 
 # Western & Central Europe + UK/IE — EU_WEST
 _CITIES_EU_WEST = frozenset(
@@ -87,7 +87,7 @@ _CITIES_EU_NORTH = frozenset(c for c in EUROPEAN_CITIES if c not in _CITIES_EU_W
 
 
 def region_for_city(city: str) -> str:
-    """Map a European city to EU_NORTH / EU_SOUTH / EU_WEST (matches fuel_index)."""
+    """Map a European city to EU_NORTH / EU_SOUTH / EU_WEST (matches fuel_surcharge)."""
     if city in _CITIES_EU_WEST:
         return "EU_WEST"
     if city in _CITIES_EU_SOUTH:

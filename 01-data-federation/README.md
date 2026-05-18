@@ -19,7 +19,7 @@ You reproduce that flow end-to-end on a local **kind** cluster with watsonx.data
 ```mermaid
 flowchart TB
     subgraph Host["Host machine (container runtime)"]
-        PG[("PostgreSQL\nshipping_ops / fuel_index")]
+        PG[("PostgreSQL\nshipping_ops / fuel_surcharge")]
     end
 
     subgraph Kind["Kind Kubernetes cluster"]
@@ -51,7 +51,8 @@ cd 01-data-federation
 
 ## Python dependencies
 
-Here we build upon the [installation prerequisites](/README.md#install-prerequisites-all-sessions).
+Here we build upon the [installation prerequisites](../README.md#install-prerequisites-all-sessions).
+Assume the repository-root virtual environment is already active (`../.venv`).
 
 Install the required Python dependencies for this session using the `requirements.txt`:
 

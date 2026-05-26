@@ -33,8 +33,11 @@ Then create a new application using the console with the following payload:
 ```
 
 # If catalogs are invisible
-CREATE SCHEMA IF NOT EXISTS iceberg_data.default
-WITH (location = 's3a://iceberg-bucket/default');
+Rolling restart of Presto:
+```bash
+kubectl rollout restart deployment/ibm-lh-presto -n wxd
+```
+Then wait a few minutes for it to complete. Afterwards the catalogs will be back again!
 
 # Run Spark execution
 ```bash

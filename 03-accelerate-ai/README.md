@@ -35,7 +35,7 @@ This session adds an **agentic layer**: build and run assistants locally with th
 | Requirement | Notes |
 | --- | --- |
 | **Python 3.11–3.13** | IBM-tested range; 3.14 may break bundled Lima binaries |
-| **Docker Engine + Compose v2** | **Required on Linux** — see step 1b below (avoids QEMU/Lima) |
+| **Docker** | By default Ochestrate uses Qemu and Lima for virtualization. You can bypass it to use your own preference, or when on Linux |
 | **16 GB RAM** | 32 GB recommended with Langflow |
 | **Credentials** | myIBM entitlement + watsonx.ai API key + deployment space ID, **or** a watsonx Orchestrate SaaS instance |
 
@@ -66,24 +66,19 @@ python --version   # expect 3.11+
 
 ## Hands-on flow
 
-### Choose your pace
-
-- **Live demo (15–20 min):** steps 1–7 below.
-- **Self-paced:** add step 8 (Langflow import) and optional agent import.
-
-### 1) Install the ADK
-
-```bash
-pip install -r requirements.txt
-orchestrate --version
-```
-
-### 1b) Linux: use Docker Engine, not QEMU/Lima
+### 1a) Linux: use Docker Engine, not QEMU/Lima
 
 The ADK **defaults to Lima + QEMU on Linux**. You can also witch to user-managed Docker **once** before your first `server start` (useful on Linux):
 
 # Tell the ADK to use your Docker Engine (not Lima/QEMU)
 orchestrate settings docker host --user-managed
+```
+
+### 1b) Install the ADK
+
+```bash
+pip install -r requirements.txt
+orchestrate --version
 ```
 
 ### 2) Configure credentials

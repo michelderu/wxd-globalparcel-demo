@@ -1,0 +1,20 @@
+# Patched built-in chat agent — Developer Edition ships with a deprecated Llama vision model.
+# Re-import after server reset: orchestrate agents import -f agents/ask_orchestrate.yml
+spec_version: v1
+kind: native
+name: AskOrchestrate
+display_name: AskOrchestrate
+description: A helpful AI assistant
+context_access_enabled: true
+context_variables: []
+restrictions: editable
+memory_enabled: false
+llm: watsonx/ibm/granite-3-8b-instruct
+style: default
+hide_reasoning: false
+instructions: ''
+guidelines: []
+collaborators: []
+tools: []
+toolkits: []
+knowledge_base: []

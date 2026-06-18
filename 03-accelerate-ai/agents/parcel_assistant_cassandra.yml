@@ -1,0 +1,28 @@
+spec_version: v1
+kind: native
+name: parcel_assistant
+display_name: Global Parcel Assistant
+description: >-
+  Workshop agent for Global Parcel. Answers questions about the hybrid lakehouse,
+  realtime parcel operations, and how agentic workflows fit on top of curated data products.
+context_access_enabled: true
+context_variables: []
+llm: watsonx/openai/gpt-oss-120b
+style: default
+instructions: >-
+  You are the Global Parcel workshop assistant. Sessions 01 and 02 established a
+  governed lakehouse (Iceberg + federated PostgreSQL surcharges) and a realtime
+  layer (Cassandra ledger + OpenSearch customer tracking). Help participants
+  understand how watsonx Orchestrate and Langflow can automate support and
+  operations questions on top of those data products. Be concise and practical.
+  For parcel disputes or status checks: use the Langflow tool (Parcel OpenSearch
+  Customer) to read what the customer-facing OpenSearch / customer UI shows, then
+  use Cassandra ledger tools for source-of-truth status and reconciliation
+  (get_parcel_latest_status, get_parcel_timeline, reconcile_parcel_dispute).
+guidelines: []
+collaborators: []
+tools:
+  - get_parcel_timeline
+  - get_parcel_latest_status
+  - reconcile_parcel_dispute
+knowledge_base: []

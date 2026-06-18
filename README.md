@@ -46,7 +46,7 @@ Work in order unless a session states otherwise:
 | --- | --- | --- |
 | **01 — Data federation** | watsonx.data on kind, Iceberg ingest, Presto queries, **PostgreSQL federation** (`shipping_ops.public.fuel_surcharge` + shipping history). | [`01-data-federation/README.md`](01-data-federation/README.md) |
 | **02 — Realtime operations** | Live parcel events with Cassandra (authoritative ledger) + OpenSearch (customer-facing search), including audit and tracking UIs. | [`02-realtime-operations/README.md`](02-realtime-operations/README.md) |
-| **03 — Accelerate AI** | **watsonx Orchestrate** (Developer Edition + ADK) for agentic automation on top of curated data products. | [`03-accelerate-ai/README.md`](03-accelerate-ai/README.md) |
+| **03 — Accelerate AI** | **watsonx Orchestrate ADK** + Docker Engine + **Langflow** for agentic workflows (Linux: user-managed Docker, not QEMU). | [`03-accelerate-ai/README.md`](03-accelerate-ai/README.md) |
 
 ---
 

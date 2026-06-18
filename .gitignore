@@ -15,6 +15,8 @@ shipping_history.csv
 # Editor / OS
 .DS_Store
 .idea/
+.env
+**/.env
 
 # Logs and runtime output
 *.log

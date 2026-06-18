@@ -1,7 +1,7 @@
 """Realtime operations API for audit and customer tracking views.
 
 Run from 02-realtime-operations/:
-    uvicorn realtime_ops_api:app --app-dir backend --host 0.0.0.0 --port 8080
+    uvicorn realtime_ops_api:app --app-dir backend --host 0.0.0.0 --port 8081
 """
 
 from __future__ import annotations

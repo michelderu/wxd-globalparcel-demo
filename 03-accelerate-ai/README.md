@@ -1,130 +1,360 @@
-# Global Parcel — Accelerate AI (watsonx Orchestrate)
+# Global Parcel — Accelerate AI with watsonx Orchestrate
 
-Part of the **[workshop overview](../README.md)** and follows [`02-realtime-operations`](../02-realtime-operations/README.md).
+Part of the **[workshop overview](../README.md)** (sessions `01` → `02` → `03`).
 
-This module builds on:
-- session 01 federated cost context (`shipping_history` + `fuel_surcharge`)
-- session 02 live operational signals (parcel status + exceptions)
+Sessions 01 and 02 gave Global Parcel **governed historical analytics** and **realtime parcel operations**.
 
-Then it moves into **[IBM watsonx Orchestrate](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base)** to show agentic workflows, tools, and orchestration on top of those data products.
+This session adds an **agentic layer**: build and run assistants locally with the **watsonx Orchestrate Agent Development Kit (ADK)** and wire **Langflow** flows into Orchestrate through an **MCP server**.
 
-Official ADK and Developer Edition documentation live on **[developer.watson-orchestrate.ibm.com](https://developer.watson-orchestrate.ibm.com/)** (see also the [documentation index](https://developer.watson-orchestrate.ibm.com/llms.txt)).
-
----
-
-## How to use this session
-
-- **Live demo mode:** use a preconfigured `.env`, run `orchestrate server start`, and show one agent flow.
-- **Self-paced mode:** complete full `.env` setup, optional features, and remote environment configuration.
+![watsonx Orchestrate](./assets/orchestrate.png)
+![Langflow](./assets/langflow.png)
 
 ---
 
-## What runs “locally”
+## Session positioning
 
-**watsonx Orchestrate Developer Edition** is IBM’s supported way to run an Orchestrate-compatible stack on your own machine: a local Orchestrate server, local API, optional supporting services (for example observability), and integration points for LLM inference. It is driven by the **`orchestrate` CLI** that ships with the `ibm-watsonx-orchestrate` Python package.
+| Session | Capability |
+| --- | --- |
+| **01 — Data federation** | Iceberg history + federated PostgreSQL surcharges |
+| **02 — Realtime operations** | Cassandra ledger + OpenSearch customer tracking |
+| **03 — Accelerate AI** | ADK + Langflow + local Developer Edition for agentic Q&A |
 
-At a glance (from [What is watsonx Orchestrate Developer Edition?](https://developer.watson-orchestrate.ibm.com/developer_edition/wxOde_overview)):
+---
 
-- **Orchestrate server**: `http://localhost:4321` — OpenAPI docs at `http://localhost:4321/docs`
-- **Local Orchestrate UI**: `http://localhost:3000`
+## What you will do
 
-The full install and `.env` reference is in **[Installing watsonx Orchestrate Developer Edition](https://developer.watson-orchestrate.ibm.com/developer_edition/wxOde_setup)**.
+1. Install the **ADK** (`ibm-watsonx-orchestrate`) in the repo Python environment.
+2. Start **Developer Edition** with Langflow: `orchestrate server start -e .env --with-langflow`.
+3. Open the **chat UI** and **Langflow editor**.
+4. Import a Langflow flow as a wxO tool and chat with an agent.
 
 ---
 
 ## Prerequisites
 
-- **Python 3.11 or later** (see [Getting started with the ADK](https://developer.watson-orchestrate.ibm.com/getting_started/installing)).
-- **Hardware** (from the install guide): plan for roughly **8 CPU cores** and **16 GB RAM minimum** (32 GB recommended). With **`--with-doc-processing`**, target **24 GB RAM minimum** (32 GB recommended).
-- **LLM inference**: Developer Edition expects access to at least one provider — for example **watsonx Orchestrate SaaS**, **watsonx.ai**, **Groq**, or a **custom LLM via AI Gateway** (same source as the install guide).
-- **License**: a valid Developer Edition entitlement (SaaS purchase, on-premises entitlement via myIBM, or IBM Sales). Trial users typically authenticate with a **watsonx Orchestrate account** as described in the install guide.
+| Requirement | Notes |
+| --- | --- |
+| **Python 3.11–3.13** | IBM-tested range; 3.14 may break bundled Lima binaries |
+| **Docker Engine + Compose v2** | **Required on Linux** — see step 1b below (avoids QEMU/Lima) |
+| **16 GB RAM** | 32 GB recommended with Langflow |
+| **Credentials** | myIBM entitlement + watsonx.ai API key + deployment space ID, **or** a watsonx Orchestrate SaaS instance |
 
-**Windows note:** If you already use Docker Desktop, the IBM documentation states you should **remove it** and let the ADK installer establish the container environment it expects. Do not install Developer Edition inside a Docker environment you created manually.
+On **Linux**, the ADK defaults to a **Lima + QEMU** VM. This lab uses your **native Docker Engine** instead — no QEMU.
 
-**Upgrade note:** If you used Developer Edition before **ADK 2.0**, run `orchestrate server reset` before upgrading so old containers do not conflict (see the install guide).
+Official references:
 
----
-
-## 1) Install the ADK (CLI)
-
-In a virtual environment (reuse repository-root `.venv` if you already have it):
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install --upgrade ibm-watsonx-orchestrate
-```
-
-Verify the CLI is available:
-
-```bash
-orchestrate --help
-```
+- [Installing the ADK](https://developer.watson-orchestrate.ibm.com/getting_started/installing)
+- [Developer Edition setup (Docker)](https://developer.watson-orchestrate.ibm.com/developer_edition/wxOde_setup_legacy)
+- [Langflow + wxO tutorial](https://www.ibm.com/think/tutorials/build-custom-ai-agents-with-langflow)
 
 ---
 
-## 2) Create and fill a `.env` file
+## Working directory
 
-The ADK reads credentials and service passwords from a **`.env`** file. The exact variables depend on how you authenticate to pull and run Developer Edition:
+```bash
+cd 03-accelerate-ai
+```
 
-| Method | When to use | Primary variables (see install guide for full list) |
-| --- | --- | --- |
-| **watsonx Orchestrate account** | SaaS account or **30-day trial** | `WO_DEVELOPER_EDITION_SOURCE=orchestrate`, `WO_INSTANCE`, `WO_API_KEY` |
-| **myIBM** | Sales or on-premises entitlement | `WO_DEVELOPER_EDITION_SOURCE=myibm`, `WO_ENTITLEMENT_KEY`, plus watsonx.ai-related keys as documented |
-| **Custom image registry** | Images mirrored to your registry | `WO_DEVELOPER_EDITION_SOURCE=custom`, `REGISTRY_URL`, optional `REGISTRY_USERNAME` / `REGISTRY_PASSWORD` |
+Activate the repository virtual environment:
 
-For **`WO_INSTANCE`** and **`WO_API_KEY`** (Orchestrate account path): log in to your tenant, open **Settings → API details**, copy the **service instance URL**, and **generate an API key**. IBM documents this flow under [Installing watsonx Orchestrate Developer Edition — watsonx Orchestrate account](https://developer.watson-orchestrate.ibm.com/developer_edition/wxOde_setup#watsonx-orchestrate-account).
-
-You also define **embedded service credentials** (PostgreSQL, MinIO, Langfuse, MCP Gateway, ClickHouse, Elasticsearch/OpenSearch, Milvus, encryption key). The install guide lists example values; replace defaults with strong secrets before any shared or long-lived use, and **never commit** your `.env` to git.
-
-If you are **not** in **us-south**, add the regional **`ASSISTANT_*`**, **`ROUTING_LLM_API_BASE`**, and **`WATSONX_URL`** variables described in the install guide.
+```bash
+source ../.venv/bin/activate
+python --version   # expect 3.11+
+```
 
 ---
 
-## 3) Start the local server (and optional features)
+## Hands-on flow
 
-From the same machine, run (path is your `.env`):
+### Choose your pace
+
+- **Live demo (15–20 min):** steps 1–7 below.
+- **Self-paced:** add step 8 (Langflow import) and optional agent import.
+
+### 1) Install the ADK
 
 ```bash
-orchestrate server start -e /absolute/path/to/your/.env
+pip install -r requirements.txt
+orchestrate --version
 ```
 
-Common optional flags (documented on the same page):
+### 1b) Linux: use Docker Engine, not QEMU/Lima
 
-- `--with-langfuse` — observability / tracing
-- `--with-doc-processing` — document understanding (higher RAM)
-- `--with-voice`, `--with-langflow`, connections UI, AI Builder, etc.
+The ADK **defaults to Lima + QEMU on Linux**. You can also witch to user-managed Docker **once** before your first `server start` (useful on Linux):
 
-The install guide states that **`server start` brings up the server**, not necessarily the web UI. To start the **local Orchestrate UI**, use **`orchestrate chat start`** and see **[Managing watsonx Orchestrate Developer Edition UI](https://developer.watson-orchestrate.ibm.com/developer_edition/manage_ui)**.
+# Tell the ADK to use your Docker Engine (not Lima/QEMU)
+orchestrate settings docker host --user-managed
+```
 
-After the server is up, you can point the ADK at the local stack:
+### 2) Configure credentials
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` and set **one** authentication method:
+
+**myIBM (typical for workshops)**
+
+```bash
+WO_DEVELOPER_EDITION_SOURCE=myibm
+WO_ENTITLEMENT_KEY=<from myibm.ibm.com container library>
+WATSONX_APIKEY=<IBM Cloud API key>
+WATSONX_SPACE_ID=<watsonx.ai deployment space GUID>
+WATSONX_URL=https://us-south.ml.cloud.ibm.com
+```
+
+**watsonx Orchestrate SaaS / trial**
+
+```bash
+WO_DEVELOPER_EDITION_SOURCE=orchestrate
+WO_INSTANCE=<service instance URL from wxO Settings → API details>
+WO_API_KEY=<generated API key>
+```
+
+Embedded service credentials in `.env.example` include a **workshop default** for `DB_ENCRYPTION_KEY` (32-char hex). The ADK requires this name — not `ENCRYPTION_KEY`. To generate your own: `openssl rand -hex 16`.
+
+### 3) Start Developer Edition with Langflow
+
+```bash
+orchestrate server start -e .env --with-langflow
+```
+
+First start can take several minutes. When ready you should see:
+
+- API: http://localhost:4321 (OpenAPI docs: `/docs`, spec: `/api/openapi.json`)
+- Langflow: http://localhost:7861
+
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" http://localhost:4321/docs
+```
+
+### 4) Activate the local environment
 
 ```bash
 orchestrate env activate local
+orchestrate env list
 ```
 
-Stop or clean up when you are done (see **[Managing watsonx Orchestrate Developer Edition server](https://developer.watson-orchestrate.ibm.com/developer_edition/manage_local_server)**): for example `orchestrate server stop`, or `orchestrate server purge` to remove the local install and data.
-
----
-
-## 4) Connect the ADK to a cloud Orchestrate tenant (agents in SaaS)
-
-Developer Edition covers **local** runtime. To **author and deploy agents** against IBM-hosted Orchestrate, configure a remote **environment** after you have a service instance URL and API key (IBM Cloud vs AWS vs on-premises types differ). The pattern is documented in [Getting started with the ADK — Configure your environment](https://developer.watson-orchestrate.ibm.com/getting_started/installing#configure-your-environment-in-the-adk), for example:
+Set a **supported default model** for the tenant:
 
 ```bash
-orchestrate env add <environment-name> -u <service-instance-url> --type ibm_iam --activate
+orchestrate models config default -n watsonx/ibm/granite-3-8b-instruct
+orchestrate models list -a # To list other available models
 ```
 
-Use the procedure that matches your hosting (IBM Cloud `ibm_iam`, AWS `mcsp`, on-premises username/password or API key as described in that page).
+**Fix AskOrchestrate** (the default chat agent ships with a removed Llama model — tenant default does not override per-agent LLM):
+
+```bash
+orchestrate agents import -f agents/ask_orchestrate.yml
+orchestrate agents list    # AskOrchestrate should show granite-3-8b-instruct
+```
+
+> [!TIP]
+> Refresh the chat UI (`orchestrate chat stop` then `orchestrate chat start`) when changing the model once the Agent started.
+
+### 5) Start the chat UI
+
+```bash
+orchestrate chat start
+```
+
+Opens **http://localhost:3000/chat-lite** in your browser. Try out some simple questions that don't require parcel data (as no tools have been added yet).
+
+### 6) Cassandra ledger tools (session 02 bridge)
+
+With session **02** Cassandra running and seeded (`PCL-000001`, etc.), smoke-test against local Cassandra (host, not wxO container):
+
+```bash
+CASSANDRA_HOST=127.0.0.1 python scripts/test_ledger_tools.py PCL-000001
+```
+> [!TIP]
+> On Linux, wxO tools reach host Cassandra via `host.docker.internal`; if that fails, set `CASSANDRA_HOST=172.17.0.1` before import. See **[tools/README.md](tools/README.md)**.
+
+Now import the Python tools into Orchestrate that read the authoritative ledger:
+
+```bash
+PKG=tools/cassandra_ledger
+orchestrate tools import -k python -p "$PKG" -f "$PKG/get_parcel_timeline.py" -r "$PKG/requirements.txt"
+orchestrate tools import -k python -p "$PKG" -f "$PKG/get_parcel_latest_status.py" -r "$PKG/requirements.txt"
+orchestrate tools import -k python -p "$PKG" -f "$PKG/reconcile_parcel_dispute.py" -r "$PKG/requirements.txt"
+orchestrate agents import -f agents/parcel_assistant_cassandra.yml
+```
+
+Example chat prompts in the watsonx Orchestrate UI (select **Global Parcel Assistant** Agent):
+
+- “What is the latest status of PCL-000001 in the ledger?”
+- “Reconcile a dispute, customer claims NOT DELIVERED for PCL-000001.”
+- "What does the customer ui say?"
+
+### 7) Quick chat demo (CLI)
+At this point, you've imported the agents and tools and have the backend services running. Here's what is happening across steps 6 and 7, and what you're testing:
+
+- **Cassandra tools**: Python scripts and imported Orchestrate tools interact directly with your transactional ledger (local Cassandra DB from session 02). These answer questions about parcel status from a trusted, source-of-truth database.
+- **Agent import**: Now, the "Global Parcel Assistant" agent (`parcel_assistant_cassandra.yml`) is ready in Orchestrate. This agent can invoke the Cassandra tools automatically as part of its workflow.
+- **Demo prompts**: The sample chat prompts exercise both the Cassandra tools (for official status) and begin to highlight the need for reconciliation with customer-facing sources.
+
+When you run:
+```bash
+python scripts/chat_demo.py --question "Reconcile a dispute, customer claims NOT DELIVERED for PCL-000001."
+```
+you're simulating a chat interaction—just like in the UI—where the agent processes a natural language question and calls the required tools behind the scenes.
+
+**Interactive mode** (`--interactive`) lets you try your own real-world questions, confirming that orchestration and tool-calling are working end-to-end.
+
+```bash
+python scripts/chat_demo.py --interactive
+```
+
+### 8) Langflow MCP server for reconciliation with Customer UI
+
+**Split responsibilities:** Langflow reads the **OpenSearch customer API** (what `/customer-ui/` shows). **Cassandra ledger tools** (step 6) handle reconciliation.
+
+With session 02 API running (`uvicorn … --port 8081`) and OpenSearch indexed:
+
+1. Import `tools/langflow/parcel_opensearch_customer.json` at **http://localhost:7861** (optional: test playground with `PCL-LIVE-000001`)
+2. Click "Share → MCP Server" and ensure "PARCEL_OPENSEARCH_CUSTOMER" is set under `Flows/Tools` (optional: click JSON to understand how to call the MCP server)
+
+> [!INFO]
+> Langflow playground calls `GET /api/customer/{parcel_id}` — no LLM required
+
+Now we're ready to add this MCP tool to Orchestrate:
+
+```bash
+orchestrate toolkits add \
+  --kind mcp \
+  --name langflow_parcel_mcp \
+  --description "Langflow MCP for Global Parcel" \
+  --command "uvx mcp-proxy http://host.docker.internal:7861/api/v1/mcp/project/12b581ee-bb1f-49ab-88bd-d015f072b988/sse" \
+  --tools "*"
+```
+
+To list the tools available:
+
+```bash
+orchestrate tools list
+```
+
+And finally update the agent so it's aware to use the new LangFlow MCP tool:
+
+```bash
+orchestrate agents import -f agents/parcel_assistant_opensearch.yml
+```
+
+Navigate to the Orchestrate UI at http://localhost:3000/chat and ask:
+
+> Customer says PCL-LIVE-000001 is not delivered — what does customer tracking show, and does the ledger agree?
 
 ---
 
-## Full product on your own infrastructure
+## Architecture
 
-For **production-style** watsonx Orchestrate on OpenShift or other supported platforms (not the laptop Developer Edition), follow the IBM product documentation, for example **[Installing watsonx Orchestrate on-premises](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=installing-watsonx-orchestrate-premises)** (and the version of that topic that matches your release).
+```mermaid
+flowchart LR
+    subgraph S03["03-accelerate-ai"]
+        ADK["ADK CLI"]
+        LF["Langflow :7861"]
+        WXO["wxO Developer Edition"]
+    end
+
+    S01["01 lakehouse products"] --> WXO
+    S02["02 realtime signals"] --> WXO
+    ADK --> WXO
+    ADK --> LF
+    LF -->|tools / MCP| WXO
+    WXO --> WXA["watsonx.ai models"]
+```
 
 ---
 
-## What’s next (this repo)
+## Open standards and tool formats
 
-Later steps in `03-accelerate-ai` can add Global Parcel–specific agents, tools, and flows (for example calling APIs or summarizing operational metrics). Those assets will be added here as the demo grows.
+This session mixes **open, portable interfaces** with **ADK- and vendor-specific packaging**. Both are intentional: open standards ease integration and handoff; ADK-native formats are fastest for a local workshop.
+
+| Piece in this lab | Format | Open standard? | Notes |
+| --- | --- | --- | --- |
+| **wxO REST API** | [OpenAPI 3.0](https://developer.watson-orchestrate.ibm.com/apis/auth/login-for-token) | Yes | Spec at `http://localhost:4321/api/openapi.json`; used by `chat_demo.py` |
+| **Chat completions** | `POST /api/v1/orchestrate/{agent_id}/chat/completions` | De facto (OpenAI-style) | Common pattern for agent chat; not a formal ISO standard |
+| **MCP toolkits** (step 8) | [Model Context Protocol](https://modelcontextprotocol.io/) | Yes | Langflow → wxO via SSE; good when you want a portable agent–tool wire protocol |
+| **OpenAPI tools** | `orchestrate tools import -k openapi` | Yes | Wrap existing HTTP APIs (e.g. session 02 FastAPI) without custom Python |
+| **Cassandra ledger tools** (step 6) | `orchestrate tools import -k python` + `@tool` | **No** (ADK format) | Data access uses standard **CQL** / Cassandra native protocol; tool definition is wxO-specific |
+| **Langflow flow import** | `orchestrate tools import -k langflow` + exported JSON | **No** | Langflow-specific export; fine for quick demos |
+| **Agents** | `agents/*.yml` (`spec_version: v1`) | **No** | wxO ADK agent definition |
+
+### What we use in this repo
+
+```mermaid
+flowchart TB
+    subgraph open["Open / portable"]
+        OAPI["OpenAPI 3.0\n(wxO API, future HTTP tools)"]
+        MCP["MCP\n(Langflow SSE)"]
+        CQL["CQL / Cassandra protocol\n(ledger data)"]
+    end
+
+    subgraph adk["ADK / vendor-specific"]
+        PY["Python @tool\n(cassandra_ledger)"]
+        LFJ["Langflow JSON export"]
+        AGY["Agent YAML"]
+    end
+
+    S02["02-realtime-operations\nCassandra + FastAPI"] --> CQL
+    S02 --> OAPI
+    PY --> CQL
+    LFJ --> MCP
+    AGY --> WXO["wxO Developer Edition"]
+    PY --> WXO
+    OAPI --> WXO
+    MCP --> WXO
+```
+
+- **Step 6 (Cassandra ledger):** Python ADK tools for the **authoritative ledger** and reconciliation.
+- **Step 8 (Langflow):** Langflow JSON calls **`GET /api/customer/{parcel_id}`** (OpenSearch customer UI path) only; pair with step 6 tools for disputes.
+- **CLI chat (`chat_demo.py`):** Calls the wxO **OpenAPI-documented** REST surface.
+
+### Choosing a format
+
+| Goal | Prefer |
+| --- | --- |
+| Read session 02 Cassandra directly in a workshop | Python `@tool` (current `tools/cassandra_ledger/`) |
+| Expose an existing REST API to agents | **OpenAPI** import against session 02 `realtime_ops_api` |
+| Connect Langflow with minimal lock-in | **MCP** (`orchestrate toolkits add --kind mcp`) |
+| Fastest Langflow demo | Langflow JSON (`-k langflow`) |
+
+See [Authoring OpenAPI tools](https://developer.watson-orchestrate.ibm.com/tools/create_openapi_tool) and [Authoring Python tools](https://developer.watson-orchestrate.ibm.com/tools/create_tool) in the ADK docs.
+
+---
+
+## Stop and clean up:
+
+```bash
+orchestrate chat stop
+orchestrate server stop          # stop containers
+```
+
+Full reset (removes `dev-edition_*` containers and volumes — use after env/DB issues):
+
+```bash
+orchestrate server reset -e .env
+```
+
+`orchestrate server purge` **does not work** with user-managed Docker (`Cannot delete VM host…`). Use `reset` instead. `purge` is only for the Lima/QEMU install path.
+
+---
+
+## Demo script
+
+Facilitators: see **[DEMO_SPEC.md](DEMO_SPEC.md)** for timing, prompts, and success checks.
+
+---
+
+## Next steps
+
+- Add session 02 HTTP endpoints as **OpenAPI tools** (see [Open standards and tool formats](#open-standards-and-tool-formats)) — e.g. `/api/audit/{parcel_id}` and `/api/customer/{parcel_id}` from `realtime_ops_api`.
+- Deploy agents to **watsonx Orchestrate SaaS** with `orchestrate env add` and `orchestrate agents import`.
+- Explore observability: `orchestrate server start -e .env --with-langflow --with-langfuse`.
+
+---
+
+## License and support
+
+Developer Edition is for local development. See [IBM watsonx Orchestrate documentation](https://developer.watson-orchestrate.ibm.com/) for production licensing and support.

@@ -135,7 +135,7 @@ For this workshop iteration, Cassandra is the transactional engine baseline.
 
 ```bash
 docker compose up -d cassandra
-docker compose ps # check for container startup
+docker compose ps   # wait until cassandra shows healthy (first boot ~1–2 min)
 ```
 
 2) Confirm Cassandra is up:
@@ -200,10 +200,10 @@ docker compose exec -T cassandra cqlsh < generated/parcel_events_seed.cql
 7) Run the Audit/Reconciliation dashboard (Cassandra source-of-truth):
 
 ```bash
-uvicorn realtime_ops_api:app --app-dir backend --host 0.0.0.0 --port 8080
+uvicorn realtime_ops_api:app --app-dir backend --host 0.0.0.0 --port 8081
 ```
 
-Open [http://localhost:8080/audit-ui/](http://localhost:8080/audit-ui/).
+Open [http://localhost:8081/audit-ui/](http://localhost:8081/audit-ui/).
 
 This dashboard demonstrates the **Cassandra source-of-truth read path** for dispute workflows.
 Use it to validate what was actually written on the transactional timeline when customer-facing channels show stale or conflicting status.
@@ -338,12 +338,12 @@ When this query returns a multi-event timeline and OpenSearch `_count` is increa
 Reuse the API server from Part 1, or start it now if needed:
 
 ```bash
-uvicorn realtime_ops_api:app --app-dir backend --host 0.0.0.0 --port 8080
+uvicorn realtime_ops_api:app --app-dir backend --host 0.0.0.0 --port 8081
 ```
 
-Open [http://localhost:8080/customer-ui/](http://localhost:8080/customer-ui/) and track a live parcel id such as `PCL-LIVE-000001`.
+Open [http://localhost:8081/customer-ui/](http://localhost:8081/customer-ui/) and track a live parcel id such as `PCL-LIVE-000001`.
 
-This view demonstrates OpenSearch as the customer-facing tracking/search frontend, while the audit dashboard at [http://localhost:8080/audit-ui/](http://localhost:8080/audit-ui/) demonstrates Cassandra as the trusted transactional ledger backend and source-of-truth reconciliation path.
+This view demonstrates OpenSearch as the customer-facing tracking/search frontend, while the audit dashboard at [http://localhost:8081/audit-ui/](http://localhost:8081/audit-ui/) demonstrates Cassandra as the trusted transactional ledger backend and source-of-truth reconciliation path.
 
 ```mermaid
 flowchart TB
@@ -360,5 +360,7 @@ flowchart TB
 You now have both sides of the Global Parcel story:
 - **governed historical + surcharge context** (session 01)
 - **live operational tracking + exceptions** (this session)
+
+Session 03 Langflow flows call **`GET /api/customer/{parcel_id}`** (OpenSearch customer UI path) on this API at **port 8081** (avoids conflict with wxO on 8080). Cassandra reconciliation uses wxO Python ledger tools.
 
 Continue with [`../03-accelerate-ai/README.md`](../03-accelerate-ai/README.md) to layer agentic workflows on top of these signals.

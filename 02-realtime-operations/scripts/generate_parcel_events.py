@@ -17,6 +17,8 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
+from delivery_notes import delivery_note
+
 
 @dataclass(frozen=True)
 class Hub:
@@ -99,6 +101,7 @@ def generate_rows(parcels: int, seed: int) -> list[dict[str, object]]:
                 "longitude": jitter(first_hub.lon, 0.04, rng),
                 "exception_code": "",
                 "customer_eta": eta,
+                "delivery_note": delivery_note("LABEL_CREATED", first_hub, None, rng),
             }
         )
         event_time += timedelta(minutes=rng.randint(20, 90))
@@ -110,6 +113,7 @@ def generate_rows(parcels: int, seed: int) -> list[dict[str, object]]:
                 status = rng.choice(["SORTED_AT_HUB", "IN_TRANSIT"])
             else:
                 status = "OUT_FOR_DELIVERY"
+            ex = "WX_DELAY" if rng.random() < 0.08 else ""
             rows.append(
                 {
                     "parcel_id": parcel_id,
@@ -119,8 +123,9 @@ def generate_rows(parcels: int, seed: int) -> list[dict[str, object]]:
                     "region": hub.region,
                     "latitude": jitter(hub.lat, 0.12, rng),
                     "longitude": jitter(hub.lon, 0.12, rng),
-                    "exception_code": "WX_DELAY" if rng.random() < 0.08 else "",
+                    "exception_code": ex,
                     "customer_eta": eta,
+                    "delivery_note": delivery_note(status, hub, ex or None, rng),
                 }
             )
             event_time += timedelta(hours=rng.randint(2, 10), minutes=rng.randint(5, 55))
@@ -138,6 +143,7 @@ def generate_rows(parcels: int, seed: int) -> list[dict[str, object]]:
                 "longitude": jitter(final_hub.lon, 0.18, rng),
                 "exception_code": "",
                 "customer_eta": eta,
+                "delivery_note": delivery_note("DELIVERED", final_hub, None, rng),
             }
         )
 
@@ -156,6 +162,7 @@ def write_csv(rows: list[dict[str, object]], out_path: Path) -> None:
         "longitude",
         "exception_code",
         "customer_eta",
+        "delivery_note",
     ]
     with out_path.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
@@ -173,9 +180,10 @@ def write_cql(rows: list[dict[str, object]], out_path: Path) -> None:
         for row in rows:
             ex = row["exception_code"] or None
             ex_literal = f"'{escaped(ex)}'" if ex else "null"
+            note = escaped(str(row["delivery_note"]))
             f.write(
                 "INSERT INTO parcel_events_by_parcel "
-                "(parcel_id, event_ts, status, hub_code, region, latitude, longitude, exception_code, customer_eta) "
+                "(parcel_id, event_ts, status, hub_code, region, latitude, longitude, exception_code, customer_eta, delivery_note) "
                 f"VALUES ('{escaped(str(row['parcel_id']))}', "
                 f"'{ts_for_cql(row['event_ts'])}', "
                 f"'{escaped(str(row['status']))}', "
@@ -183,7 +191,8 @@ def write_cql(rows: list[dict[str, object]], out_path: Path) -> None:
                 f"'{escaped(str(row['region']))}', "
                 f"{row['latitude']}, {row['longitude']}, "
                 f"{ex_literal}, "
-                f"'{ts_for_cql(row['customer_eta'])}');\n"
+                f"'{ts_for_cql(row['customer_eta'])}', "
+                f"'{note}');\n"
             )
 
 

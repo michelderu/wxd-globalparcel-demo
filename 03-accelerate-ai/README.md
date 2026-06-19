@@ -45,6 +45,7 @@ This session adds an **agentic layer**: build and run assistants locally with th
 | **Docker** | By default Ochestrate uses Qemu and Lima for virtualization. You can bypass it to use your own preference, or when on Linux |
 | **16 GB RAM** | 32 GB recommended with Langflow |
 | **Credentials** | myIBM entitlement + watsonx.ai API key + deployment space ID, **or** a watsonx Orchestrate SaaS instance |
+| **Session 02 running** | Cassandra `:9042`, OpenSearch `:9200`, `realtime_ops_api` on `:8081` — see **[delivery driver notes](../02-realtime-operations/README.md#delivery-driver-notes-session-03)** |
 
 On **Linux**, the ADK defaults to a **Lima + QEMU** VM. This lab uses your **native Docker Engine** instead — no QEMU.
 
@@ -165,6 +166,10 @@ Opens **http://localhost:3000/chat-lite** in your browser. Try out some simple q
 
 ### 6) Cassandra ledger tools (session 02 bridge)
 
+Connection defaults (CQL port, keyspace, Linux `CASSANDRA_HOST`): **[delivery driver notes](../02-realtime-operations/README.md#delivery-driver-notes-session-03)**.
+
+Session 02 stores **delivery driver notes** on each ledger event (`delivery_note` column). They are ideal agent fuel — human context behind scans that the customer OpenSearch view does not expose.
+
 With session **02** Cassandra running and seeded (`PCL-000001`, etc.), smoke-test against local Cassandra (host, not wxO container):
 
 ```bash
@@ -179,6 +184,7 @@ Now import the Python tools into Orchestrate that read the authoritative ledger:
 PKG=tools/cassandra_ledger
 orchestrate tools import -k python -p "$PKG" -f "$PKG/get_parcel_timeline.py" -r "$PKG/requirements.txt"
 orchestrate tools import -k python -p "$PKG" -f "$PKG/get_parcel_latest_status.py" -r "$PKG/requirements.txt"
+orchestrate tools import -k python -p "$PKG" -f "$PKG/get_parcel_delivery_notes.py" -r "$PKG/requirements.txt"
 orchestrate tools import -k python -p "$PKG" -f "$PKG/reconcile_parcel_dispute.py" -r "$PKG/requirements.txt"
 orchestrate agents import -f agents/parcel_assistant_cassandra.yml
 ```
@@ -186,7 +192,8 @@ orchestrate agents import -f agents/parcel_assistant_cassandra.yml
 Example chat prompts in the watsonx Orchestrate UI (select **Global Parcel Assistant** Agent):
 
 - “What is the latest status of PCL-000001 in the ledger?”
-- “Reconcile a dispute, customer claims NOT DELIVERED for PCL-000001.”
+- “What delivery notes did drivers leave for PCL-000001?”
+- “Reconcile a dispute, customer claims NOT DELIVERED for PCL-000001 — quote the latest driver note.”
 - "What does the customer ui say?"
 
 ### 7) Quick chat demo (CLI)
@@ -211,6 +218,8 @@ python scripts/chat_demo.py --interactive
 ### 8) Langflow MCP server for reconciliation with Customer UI
 
 **Split responsibilities:** Langflow reads the **OpenSearch customer API** (what `/customer-ui/` shows). **Cassandra ledger tools** (step 6) handle reconciliation.
+
+Host/API URLs and Docker bridge settings: **[delivery driver notes](../02-realtime-operations/README.md#delivery-driver-notes-session-03)** (use `172.17.0.1:8081` for Langflow on Linux).
 
 With session 02 API running (`uvicorn … --port 8081`) and OpenSearch indexed:
 
@@ -245,7 +254,7 @@ orchestrate agents import -f agents/parcel_assistant_opensearch.yml
 
 Navigate to the Orchestrate UI at http://localhost:3000/chat and ask:
 
-> Customer says PCL-LIVE-000001 is not delivered — what does customer tracking show, and does the ledger agree?
+> Customer says PCL-LIVE-000001 is not delivered — what does customer tracking show, does the ledger agree, and what do the driver notes say?
 
 ---
 

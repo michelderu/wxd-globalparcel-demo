@@ -14,7 +14,7 @@ PORT = int(os.environ.get("CASSANDRA_PORT", "9042"))
 
 TIMELINE_QUERY = """
 SELECT parcel_id, event_ts, status, hub_code, region, latitude, longitude,
-       exception_code, customer_eta
+       exception_code, customer_eta, delivery_note
 FROM parcel_events_by_parcel
 WHERE parcel_id = %s
 """
@@ -51,4 +51,5 @@ def row_to_event(row: Any) -> dict[str, Any]:
         "longitude": row.longitude,
         "exception_code": row.exception_code or "",
         "customer_eta": row.customer_eta.isoformat() if row.customer_eta else None,
+        "delivery_note": getattr(row, "delivery_note", None) or "",
     }

@@ -82,7 +82,8 @@ flowchart LR
 
 - "What data products did we build in sessions 01 and 02 for Global Parcel?"
 - "What is the latest status of PCL-000001 according to the Cassandra ledger?"
-- "Customer claims NOT DELIVERED for PCL-LIVE-000001 — what does customer tracking show, and reconcile against the ledger."
+- "What delivery notes are on the ledger for PCL-000001?"
+- "Customer claims NOT DELIVERED for PCL-LIVE-000001 — what does customer tracking show, and reconcile against the ledger (quote driver notes)."
 - "Summarize the value of combining lakehouse history with realtime parcel events."
 
 ---

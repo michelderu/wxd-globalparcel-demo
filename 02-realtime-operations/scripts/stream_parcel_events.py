@@ -25,6 +25,7 @@ from cassandra.cluster import Cluster
 from opensearchpy import OpenSearch
 
 from generate_parcel_events import HUBS, LANES, Hub
+from delivery_notes import delivery_note
 
 
 @dataclass
@@ -161,8 +162,9 @@ def main() -> None:
     prepared = session.prepare(
         """
         INSERT INTO parcel_events_by_parcel (
-          parcel_id, event_ts, status, hub_code, region, latitude, longitude, exception_code, customer_eta
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+          parcel_id, event_ts, status, hub_code, region, latitude, longitude,
+          exception_code, customer_eta, delivery_note
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """
     )
 
@@ -222,6 +224,8 @@ def main() -> None:
             lat = jitter(hub.lat, spread, rng)
             lon = jitter(hub.lon, spread, rng)
 
+            note = delivery_note(status, hub, exception_code, rng)
+
             # Write the event to Cassandra (source of truth)
             session.execute(
                 prepared,
@@ -235,6 +239,7 @@ def main() -> None:
                     lon,
                     exception_code,
                     cursor.customer_eta,
+                    note,
                 ),
             )
 

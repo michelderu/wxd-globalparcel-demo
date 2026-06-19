@@ -7,9 +7,10 @@ Python tools that read the **authoritative parcel ledger** from session `02-real
 
 | Tool | Purpose |
 | --- | --- |
-| `get_parcel_timeline` | Full event timeline for a parcel |
+| `get_parcel_timeline` | Full event timeline for a parcel (includes `delivery_note`) |
 | `get_parcel_latest_status` | Latest status, hub, region, ETA |
-| `reconcile_parcel_dispute` | Compare customer claim vs ledger |
+| `get_parcel_delivery_notes` | Driver / hub operator notes from the ledger |
+| `reconcile_parcel_dispute` | Compare customer claim vs ledger (includes latest driver note) |
 
 ## Langflow flows
 
@@ -37,6 +38,7 @@ PKG=tools/cassandra_ledger
 
 orchestrate tools import -k python -p "$PKG" -f "$PKG/get_parcel_timeline.py" -r "$PKG/requirements.txt"
 orchestrate tools import -k python -p "$PKG" -f "$PKG/get_parcel_latest_status.py" -r "$PKG/requirements.txt"
+orchestrate tools import -k python -p "$PKG" -f "$PKG/get_parcel_delivery_notes.py" -r "$PKG/requirements.txt"
 orchestrate tools import -k python -p "$PKG" -f "$PKG/reconcile_parcel_dispute.py" -r "$PKG/requirements.txt"
 
 orchestrate agents import -f agents/parcel_assistant.yml
@@ -67,6 +69,6 @@ CASSANDRA_HOST=127.0.0.1 python scripts/test_ledger_tools.py PCL-000001
 
 ## Example agent prompts
 
-- “What is the latest status of **PCL-000001** according to the ledger?”
+- “What delivery notes are on the ledger for **PCL-000001**?”
 - “Show the Cassandra timeline for **PCL-LIVE-000001**.”
-- “Customer says **DELIVERED** for **PCL-000001** — reconcile against the ledger.”
+- “Customer says **DELIVERED** for **PCL-000001** — reconcile and quote the latest driver note.”

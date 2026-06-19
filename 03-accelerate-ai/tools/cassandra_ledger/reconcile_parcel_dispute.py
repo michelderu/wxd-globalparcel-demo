@@ -42,6 +42,7 @@ def reconcile_parcel_dispute(parcel_id: str, customer_claimed_status: str) -> di
         "mismatch": mismatch,
         "latest_hub": latest["hub_code"],
         "latest_event_ts": latest["event_ts"],
+        "latest_delivery_note": latest.get("delivery_note") or "",
         "evidence_timeline": timeline[:5],
         "recommendation": (
             "Use Cassandra timeline as authoritative evidence and refresh customer-facing indexes."

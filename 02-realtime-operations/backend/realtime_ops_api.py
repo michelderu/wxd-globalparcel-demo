@@ -76,7 +76,7 @@ def get_audit(parcel_id: str) -> dict[str, Any]:
 
     rows = session.execute(
         """
-        SELECT parcel_id, event_ts, status, hub_code, region, latitude, longitude, exception_code, customer_eta
+        SELECT parcel_id, event_ts, status, hub_code, region, latitude, longitude, exception_code, customer_eta, delivery_note
         FROM parcel_events_by_parcel
         WHERE parcel_id = %s
         """,
@@ -98,6 +98,7 @@ def get_audit(parcel_id: str) -> dict[str, Any]:
             },
             "exception_code": r.exception_code or "",
             "customer_eta": r.customer_eta.isoformat() if r.customer_eta else None,
+            "delivery_note": getattr(r, "delivery_note", None) or "",
         }
         for r in events
     ]

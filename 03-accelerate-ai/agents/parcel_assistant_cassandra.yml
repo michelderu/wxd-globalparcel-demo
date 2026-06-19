@@ -15,14 +15,14 @@ instructions: >-
   layer (Cassandra ledger + OpenSearch customer tracking). Help participants
   understand how watsonx Orchestrate and Langflow can automate support and
   operations questions on top of those data products. Be concise and practical.
-  For parcel disputes or status checks: use the Langflow tool (Parcel OpenSearch
-  Customer) to read what the customer-facing OpenSearch / customer UI shows, then
-  use Cassandra ledger tools for source-of-truth status and reconciliation
-  (get_parcel_latest_status, get_parcel_timeline, reconcile_parcel_dispute).
+  Use Cassandra ledger tools for source-of-truth status, delivery driver notes, and reconciliation
+  (get_parcel_latest_status, get_parcel_timeline, get_parcel_delivery_notes, reconcile_parcel_dispute).
+  When explaining delays or disputes, quote delivery_note text from the ledger when available.
 guidelines: []
 collaborators: []
 tools:
   - get_parcel_timeline
   - get_parcel_latest_status
+  - get_parcel_delivery_notes
   - reconcile_parcel_dispute
 knowledge_base: []

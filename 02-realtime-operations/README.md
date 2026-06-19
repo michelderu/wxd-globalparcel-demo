@@ -168,10 +168,19 @@ CREATE TABLE IF NOT EXISTS parcel_events_by_parcel (
   longitude double,
   exception_code text,
   customer_eta timestamp,
+  delivery_note text,
   PRIMARY KEY ((parcel_id), event_ts)
 ) WITH CLUSTERING ORDER BY (event_ts DESC);
 EOF
 ```
+
+**Delivery driver notes** are short field messages left at each scan (hub operator or last-mile driver). They are stored on the **Cassandra ledger** and are especially useful in **session 03** — agents can quote them when explaining delays, disputes, or proof of delivery. The customer OpenSearch index intentionally exposes status/timeline only; richer notes live on the ledger.
+
+Example notes you will see after seeding:
+
+- `Sorted into outbound lane at FRA-01; cage GP-412.`
+- `Weather delay — ramp closed for de-icing; customer ETA may slip.`
+- `Delivered at Chicago; signed by recipient.`
 
 4) Install Python requirements for this session:
 
@@ -355,12 +364,79 @@ flowchart TB
 
 ---
 
+## Delivery driver notes (session 03)
+
+**Delivery driver notes** are short, human-written messages left at each parcel scan — by hub operators (“sorted into cage GP-412”) or last-mile drivers (“signed by concierge, photo captured”). They are unstructured operational context, not a separate system.
+
+### Why agents use them
+
+Customer tracking (OpenSearch + `/customer-ui/`) shows **status and ETA**. The Cassandra **ledger** also stores `delivery_note` on every event. That gap is deliberate: session **03** agents combine both views — customer claim from Langflow, authoritative status **and** driver narrative from wxO ledger tools.
+
+| Store | `delivery_note` | Session 03 consumer |
+| --- | --- | --- |
+| **Cassandra ledger** | Yes — every scan | `get_parcel_delivery_notes`, `get_parcel_timeline`, `reconcile_parcel_dispute` |
+| **OpenSearch** `parcel-events-live` | No | Langflow → `GET /api/customer/{parcel_id}` (status only) |
+| **Audit UI** | Yes (timeline) | Human reference while testing agents |
+
+**Sample parcel IDs**
+
+| ID | Source | Try asking the agent |
+| --- | --- | --- |
+| `PCL-000001` … `PCL-000060` | Seeded in Part 1 | “What did drivers record for PCL-000001?” |
+| `PCL-LIVE-000001` | Streamed in Part 2 | “Customer says not delivered — what does the latest driver note say?” |
+
+Example notes after seeding or streaming:
+
+- `Sorted into outbound lane at FRA-01; cage GP-412.`
+- `FRA-01: weather delay — ramp closed for de-icing; customer ETA may slip.`
+- `Delivered at Chicago; signed by recipient.`
+
+### Example agent prompts (session 03)
+
+- “What delivery notes are on the ledger for **PCL-000001**?”
+- “Customer claims **NOT DELIVERED** for **PCL-000001** — reconcile and quote the latest driver note.”
+- “**PCL-LIVE-000001** shows a delay in customer tracking — does any driver note explain why?”
+
+Full agent lab: [`../03-accelerate-ai/README.md`](../03-accelerate-ai/README.md).
+
+### Session 03 connectivity
+
+Keep the session 02 stack running while you work through session 03.
+
+| Service | Port | Session 03 consumer |
+| --- | --- | --- |
+| Cassandra CQL | `9042` | wxO Python ledger tools (`CASSANDRA_HOST=host.docker.internal` or `172.17.0.1` on Linux) |
+| OpenSearch | `9200` | Host API only |
+| Realtime ops API | `8081` | Langflow → `GET /api/customer/{parcel_id}` |
+| Langflow MCP | `7861` | wxO toolkit → customer flow |
+
+```bash
+# Host API (from 02-realtime-operations/)
+uvicorn realtime_ops_api:app --app-dir backend --host 0.0.0.0 --port 8081
+
+# Quick checks from a container on Linux
+docker run --rm curlimages/curl -s http://172.17.0.1:8081/api/health
+```
+
+wxO and Langflow run in Docker — use **`172.17.0.1`** (not `localhost`) for host services on Linux. Edit **Customer API base** in `03-accelerate-ai/tools/langflow/parcel_openSearch_customer.json` if needed.
+
+### Tool split (reminder)
+
+| Question | Tool path |
+| --- | --- |
+| What does the **customer** see? | Langflow → `GET /api/customer/{parcel_id}` |
+| What does the **ledger** say? | wxO `get_parcel_latest_status`, `get_parcel_timeline` |
+| What did **drivers** record? | wxO `get_parcel_delivery_notes` |
+| **Reconcile** a dispute | wxO `reconcile_parcel_dispute` |
+
+---
+
 ## Handoff to session 03
 
 You now have both sides of the Global Parcel story:
 - **governed historical + surcharge context** (session 01)
 - **live operational tracking + exceptions** (this session)
 
-Session 03 Langflow flows call **`GET /api/customer/{parcel_id}`** (OpenSearch customer UI path) on this API at **port 8081** (avoids conflict with wxO on 8080). Cassandra reconciliation uses wxO Python ledger tools.
+Session 03 layers agentic workflows on **delivery driver notes**, ledger tools, and the customer OpenSearch path. See **[Delivery driver notes (session 03)](#delivery-driver-notes-session-03)** and [`../03-accelerate-ai/README.md`](../03-accelerate-ai/README.md).
 
-Continue with [`../03-accelerate-ai/README.md`](../03-accelerate-ai/README.md) to layer agentic workflows on top of these signals.
+Continue with session 03 to automate support questions that need both customer-facing status and field-level narrative.

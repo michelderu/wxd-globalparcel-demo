@@ -1,5 +1,11 @@
 # Global Parcel — Accelerate AI with watsonx Orchestrate
 
+[![watsonx Orchestrate](https://img.shields.io/badge/watsonx-Orchestrate-0f62fe?style=flat-square&logo=ibm&logoColor=white)](https://www.ibm.com/products/watsonx-orchestrate)
+[![Langflow](https://img.shields.io/badge/Langflow-MCP-6E3FF3?style=flat-square)](https://www.langflow.org/)
+[![DataStax](https://img.shields.io/badge/DataStax-HCD-FF6A13?style=flat-square)](https://www.datastax.com/products/datastax-hcd)
+[![Cassandra](https://img.shields.io/badge/Apache-Cassandra-1287B1?style=flat-square&logo=apachecassandra&logoColor=white)](https://cassandra.apache.org/)
+[![OpenSearch](https://img.shields.io/badge/OpenSearch-Index-005EB8?style=flat-square&logo=opensearch&logoColor=white)](https://opensearch.org/)
+
 Part of the **[workshop overview](../README.md)** (sessions `01` → `02` → `03`).
 
 Sessions 01 and 02 gave Global Parcel **governed historical analytics** and **realtime parcel operations**.
@@ -8,6 +14,7 @@ This session adds an **agentic layer**: build and run assistants locally with th
 
 ![watsonx Orchestrate](./assets/orchestrate.png)
 ![Langflow](./assets/langflow.png)
+![watsonx Orchestrate Agent editor](./assets/orchestrate-edit-agent.png)
 
 ---
 

@@ -73,11 +73,11 @@ python --version   # expect 3.11+
 
 ## Hands-on flow
 
-### 1a) Linux: use Docker Engine, not QEMU/Lima
+### 1a) Linux (or self managed Container-VM): use Docker Engine, not QEMU/Lima
 
 The ADK **defaults to Lima + QEMU on Linux**. You can also witch to user-managed Docker **once** before your first `server start` (useful on Linux):
 
-# Tell the ADK to use your Docker Engine (not Lima/QEMU)
+```bash
 orchestrate settings docker host --user-managed
 ```
 
@@ -114,7 +114,7 @@ WO_INSTANCE=<service instance URL from wxO Settings → API details>
 WO_API_KEY=<generated API key>
 ```
 
-Embedded service credentials in `.env.example` include a **workshop default** for `DB_ENCRYPTION_KEY` (32-char hex). The ADK requires this name — not `ENCRYPTION_KEY`. To generate your own: `openssl rand -hex 16`.
+Embedded service credentials in `.env.example` include a **workshop default** for `DB_ENCRYPTION_KEY` (32-char hex). To generate your own: `openssl rand -hex 16`.
 
 ### 3) Start Developer Edition with Langflow
 

@@ -139,11 +139,16 @@ orchestrate env activate local
 orchestrate env list
 ```
 
-Set a **supported default model** for the tenant:
+List the available models:
 
 ```bash
-orchestrate models config default -n watsonx/ibm/granite-3-8b-instruct
-orchestrate models list -a # To list other available models
+orchestrate models list -a
+```
+
+Now set a **supported default model** for the tenant:
+
+```bash
+orchestrate models config default -n watsonx/ibm/granite-4-h-small
 ```
 
 **Fix AskOrchestrate** (the default chat agent ships with a removed Llama model — tenant default does not override per-agent LLM):
@@ -170,6 +175,38 @@ Connection defaults (CQL port, keyspace, Linux `CASSANDRA_HOST`): **[delivery dr
 
 Session 02 stores **delivery driver notes** on each ledger event (`delivery_note` column). They are ideal agent fuel — human context behind scans that the customer OpenSearch view does not expose.
 
+```mermaid
+flowchart TB
+    subgraph S02["Session 02 — host (02-realtime-operations)"]
+        GEN["generate_parcel_events.py\nseed PCL-000001 …"]
+        CASS[("Cassandra HCD :9042\nkeyspace globalparcel_ops\ntable parcel_events_by_parcel")]
+        GEN -->|"INSERT delivery_note + status"| CASS
+    end
+
+    subgraph WXO["wxO Developer Edition — Docker container"]
+        AGENT["Global Parcel Assistant\nparcel_assistant_cassandra.yml"]
+        subgraph TOOLS["tools/cassandra_ledger (@tool)"]
+            direction TB
+            T1["get_parcel_timeline"]
+            T2["get_parcel_latest_status"]
+            T3["get_parcel_delivery_notes"]
+            T4["reconcile_parcel_dispute"]
+            CC["cassandra_client.py\nCQL queries"]
+            T1 & T2 & T3 & T4 --> CC
+        end
+        AGENT -->|"LLM tool calls"| TOOLS
+    end
+
+    subgraph UX["You"]
+        CHAT["Chat UI :3000\nor chat_demo.py"]
+        SMOKE["test_ledger_tools.py\n(host smoke test)"]
+    end
+
+    CHAT -->|"natural language"| AGENT
+    SMOKE -->|"direct Python call"| TOOLS
+    CC -->|"cassandra-driver\nhost.docker.internal or 172.17.0.1:9042"| CASS
+```
+
 With session **02** Cassandra running and seeded (`PCL-000001`, etc.), smoke-test against local Cassandra (host, not wxO container):
 
 ```bash
@@ -177,6 +214,12 @@ CASSANDRA_HOST=127.0.0.1 python scripts/test_ledger_tools.py PCL-000001
 ```
 > [!TIP]
 > On Linux, wxO tools reach host Cassandra via `host.docker.internal`; if that fails, set `CASSANDRA_HOST=172.17.0.1` before import. See **[tools/README.md](tools/README.md)**.
+
+First let's ensure no tools are available yet:
+
+```bash
+orchestrate tools list
+```
 
 Now import the Python tools into Orchestrate that read the authoritative ledger:
 
@@ -189,12 +232,19 @@ orchestrate tools import -k python -p "$PKG" -f "$PKG/reconcile_parcel_dispute.p
 orchestrate agents import -f agents/parcel_assistant_cassandra.yml
 ```
 
-Example chat prompts in the watsonx Orchestrate UI (select **Global Parcel Assistant** Agent):
+First let's check the tools again:
+```bash
+orchestrate tools list
+```
+
+Now run these example chat prompts in the [watsonx Orchestrate UI](http://localhost:3000/chat) (select **Global Parcel Assistant** Agent):
 
 - “What is the latest status of PCL-000001 in the ledger?”
 - “What delivery notes did drivers leave for PCL-000001?”
 - “Reconcile a dispute, customer claims NOT DELIVERED for PCL-000001 — quote the latest driver note.”
 - "What does the customer ui say?"
+
+For the last question, you'll see that we don't truly have a single pane of glass yet. This is holding back our employees efficiency. So let's fix that in the later steps.
 
 ### 7) Quick chat demo (CLI)
 At this point, you've imported the agents and tools and have the backend services running. Here's what is happening across steps 6 and 7, and what you're testing:
@@ -225,18 +275,21 @@ With session 02 API running (`uvicorn … --port 8081`) and OpenSearch indexed:
 
 1. Import `tools/langflow/parcel_opensearch_customer.json` at **http://localhost:7861** (optional: test playground with `PCL-LIVE-000001`)
 2. Click "Share → MCP Server" and ensure "PARCEL_OPENSEARCH_CUSTOMER" is set under `Flows/Tools` (optional: click JSON to understand how to call the MCP server)
+3. Make note of the URL inside the `args` sections, as you'll need it below
 
 > [!INFO]
 > Langflow playground calls `GET /api/customer/{parcel_id}` — no LLM required
 
-Now we're ready to add this MCP tool to Orchestrate:
+Now we're ready to add this MCP tool to Orchestrate.
+1. Ensure you replace the placeholder with the URL for the MCP server
+2. Ensure to use `host.docker.internal` as we're in a dockerized environment
 
 ```bash
 orchestrate toolkits add \
   --kind mcp \
   --name langflow_parcel_mcp \
   --description "Langflow MCP for Global Parcel" \
-  --command "uvx mcp-proxy http://host.docker.internal:7861/api/v1/mcp/project/12b581ee-bb1f-49ab-88bd-d015f072b988/sse" \
+  --command "uvx mcp-proxy http://host.docker.internal:7861/api/v1/mcp/project/38a0dc38-8574-423f-b902-c9b5d6323eba/sse" \
   --tools "*"
 ```
 
@@ -250,6 +303,8 @@ And finally update the agent so it's aware to use the new LangFlow MCP tool:
 
 ```bash
 orchestrate agents import -f agents/parcel_assistant_opensearch.yml
+orchestrate chat stop
+orchestrate chat start
 ```
 
 Navigate to the Orchestrate UI at http://localhost:3000/chat and ask:

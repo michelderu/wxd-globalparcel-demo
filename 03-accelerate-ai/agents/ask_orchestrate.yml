@@ -9,7 +9,7 @@ context_access_enabled: true
 context_variables: []
 restrictions: editable
 memory_enabled: false
-llm: watsonx/ibm/granite-3-8b-instruct
+llm: watsonx/ibm/granite-4-h-small
 style: default
 hide_reasoning: false
 instructions: ''

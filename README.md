@@ -2,7 +2,7 @@
 
 Global Parcel wants **control and clarity over shipping data** while meeting **data sovereignty** expectations. **Fuel and logistics costs swing with world events**—published base rates are not the whole story until you reconcile **historic parcel flows** with **current surcharge regimes** in governed systems you operate.
 
-This repository is a **product-led growth** engine for the **watsonx** portfolio: **product-first** outcomes you can measure in minutes, delivered through a **developer-first, developer-led** path—clone the repo, run on **local Kubernetes (kind)**, and experience hybrid analytics, realtime operations, and agentic AI by building, not by watching slides.
+This repository is a **product-led growth** engine for the **IBM watsonx** portfolio: **product-first** outcomes you can measure in minutes, delivered through a **developer-first, developer-led** path—clone the repo, run on **local Kubernetes (kind)**, and experience hybrid analytics, realtime operations, and agentic AI by building, not by watching slides.
 
 **Three tracks**, one continuous story:
 

@@ -1,10 +1,16 @@
 # Global Parcel Hybrid Lakehouse — workshop series
 
-Global Parcel wants **control and clarity over shipping data** while meeting **data sovereignty** expectations. At the same time, **fuel and logistics costs swing with world events**—published base rates do not tell the whole story unless you can reconcile **historic parcel flows** with **current surcharge regimes** in governed systems you operate.
+Global Parcel wants **control and clarity over shipping data** while meeting **data sovereignty** expectations. **Fuel and logistics costs swing with world events**—published base rates are not the whole story until you reconcile **historic parcel flows** with **current surcharge regimes** in governed systems you operate.
 
-They turn to the **watsonx** stack (**watsonx.data** locally for this curriculum) so analytics stay **hybrid, open-table, and federated**, not locked in a distant black box.
+This repository is a **product-led growth** engine for the **watsonx** portfolio: **product-first** outcomes you can measure in minutes, delivered through a **developer-first, developer-led** path—clone the repo, run on **local Kubernetes (kind)**, and experience hybrid analytics, realtime operations, and agentic AI by building, not by watching slides.
 
-This repository expands the narrative into a **multi-session** workshop: foundational lakehouse federation, realtime operations, then AI acceleration.
+**Three tracks**, one continuous story:
+
+1. **01 — Data federation** — **watsonx.data** hybrid lakehouse: Iceberg parcel history, Presto SQL, and **PostgreSQL federation** for live surcharge joins.
+2. **02 — Realtime operations** — fit-for-purpose engines on the same platform: **Cassandra** as the authoritative parcel ledger and **OpenSearch** for millisecond customer tracking.
+3. **03 — Accelerate AI** — **watsonx Orchestrate ADK** and **Langflow**: agentic assistants wired to the governed data products from tracks 01 and 02.
+
+Each track is runnable end-to-end on your machine so practitioners, builders, and technical buyers can **try before they buy**—open table formats, standard SQL, JDBC-style federation, and local Developer Edition, not a distant black box.
 
 ![Global Parcel lakehouse journey](01-data-federation/assets/global-parcel-lakehouse-journey.png)
 

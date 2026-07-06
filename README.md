@@ -4,6 +4,8 @@ Global Parcel wants **control and clarity over shipping data** while meeting **d
 
 This repository is a **product-led growth** engine for the **IBM watsonx** portfolio: **product-first** outcomes you can measure in minutes, delivered through a **developer-first, developer-led** path—clone the repo, run on **local Kubernetes (kind)**, and experience hybrid analytics, realtime operations, and agentic AI by building, not by watching slides.
 
+![Global Parcel lakehouse journey](01-data-federation/assets/global-parcel-lakehouse-journey.png)
+
 **Three tracks**, one continuous story:
 
 1. **01 — Data federation** — **watsonx.data** hybrid lakehouse: Iceberg parcel history, Presto SQL, and **PostgreSQL federation** for live surcharge joins.
@@ -11,8 +13,6 @@ This repository is a **product-led growth** engine for the **IBM watsonx** portf
 3. **03 — Accelerate AI** — **watsonx Orchestrate ADK** and **Langflow**: agentic assistants wired to the governed data products from tracks 01 and 02.
 
 Each track is runnable end-to-end on your machine so practitioners, builders, and technical buyers can **try before they buy**—open table formats, standard SQL, JDBC-style federation, and local Developer Edition, not a distant black box.
-
-![Global Parcel lakehouse journey](01-data-federation/assets/global-parcel-lakehouse-journey.png)
 
 ---
 

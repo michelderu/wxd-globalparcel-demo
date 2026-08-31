@@ -1,3 +1,6 @@
+# StreamHouse warehouse (Iceberg catalog + parquet)
+data/
+
 # Virtual environments (repository root only for this workspace)
 .venv/
 venv/

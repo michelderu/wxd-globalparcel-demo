@@ -6,9 +6,9 @@
 [![Cassandra](https://img.shields.io/badge/Apache-Cassandra-1287B1?style=flat-square&logo=apachecassandra&logoColor=white)](https://cassandra.apache.org/)
 [![OpenSearch](https://img.shields.io/badge/OpenSearch-Index-005EB8?style=flat-square&logo=opensearch&logoColor=white)](https://opensearch.org/)
 
-Part of the **[workshop overview](../README.md)** (sessions `01` → `02` → `03`).
+Part of the **[StreamHouse workshop](../README.md)** (sessions `01` watsonx.data → `02` Cassandra/OpenSearch → `03` Orchestrate).
 
-Sessions 01 and 02 gave Global Parcel **governed historical analytics** and **realtime parcel operations**.
+Sessions 01 and 02 gave Global Parcel **governed historical analytics** and **realtime parcel operations**, now continuously fed from the StreamHouse capture bus.
 
 This session adds an **agentic layer**: build and run assistants locally with the **watsonx Orchestrate Agent Development Kit (ADK)** and wire **Langflow** flows into Orchestrate through an **MCP server**.
 

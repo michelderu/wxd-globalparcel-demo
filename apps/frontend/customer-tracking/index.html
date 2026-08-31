@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Global Parcel - Customer Tracking</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="hero">
+        <p class="eyebrow">StreamHouse · Customer channel</p>
+        <h1>Your delivery, tracked in real time</h1>
+        <p class="subtitle">Same current view as the control tower — not a second copy of the data.</p>
+        <p class="subtitle"><a href="/tower/" style="color:#60a5fa">Control tower</a> · <a href="/ask/" style="color:#60a5fa">Ask the business</a></p>
+      </header>
+
+      <section class="search-card">
+        <label for="parcelId">Tracking number</label>
+        <input id="parcelId" value="PCL-LIVE-000001" placeholder="e.g. PCL-LIVE-000001" />
+        <button id="trackBtn">Track Package</button>
+      </section>
+
+      <section id="errorBanner" class="error hidden"></section>
+
+      <main class="grid">
+        <section class="card status-hero">
+          <p class="chip">Shipment status</p>
+          <h2 id="friendlyStatus">Looking up your package...</h2>
+          <p id="statusDetail" class="status-detail">We are fetching the latest update.</p>
+          <div class="meta">
+            <div>
+              <span>Tracking number</span>
+              <strong id="summaryParcel">-</strong>
+            </div>
+            <div>
+              <span>Last known location</span>
+              <strong id="latestHub">-</strong>
+            </div>
+            <div>
+              <span>Estimated delivery</span>
+              <strong id="customerEta">-</strong>
+            </div>
+            <div>
+              <span>Last updated</span>
+              <strong id="lastUpdated">-</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3>Delivery progress</h3>
+          <div class="progress-steps">
+            <div class="step" id="stepLabelCreated">
+              <span class="step-title">Label Created</span>
+              <span class="step-date" id="stepLabelCreatedDate">-</span>
+            </div>
+            <div class="step" id="stepPickedUp">
+              <span class="step-title">Picked Up</span>
+              <span class="step-date" id="stepPickedUpDate">-</span>
+            </div>
+            <div class="step" id="stepInTransit">
+              <span class="step-title">In Transit</span>
+              <span class="step-date" id="stepInTransitDate">-</span>
+            </div>
+            <div class="step" id="stepOutForDelivery">
+              <span class="step-title">Out for Delivery</span>
+              <span class="step-date" id="stepOutForDeliveryDate">-</span>
+            </div>
+            <div class="step" id="stepDelivered">
+              <span class="step-title">Delivered</span>
+              <span class="step-date" id="stepDeliveredDate">-</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="card wide">
+          <h3>Tracking history</h3>
+          <div id="timelineRows" class="timeline"></div>
+        </section>
+      </main>
+    </div>
+    <script src="./main.js"></script>
+  </body>
+</html>

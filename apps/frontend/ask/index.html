@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ask the business</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header>
+        <p class="eyebrow">StreamHouse · AI on the current view</p>
+        <h1>Ask the business</h1>
+        <p class="subtitle">
+          Natural-language questions over the current view. watsonx Orchestrate in session 03
+          uses the same Cassandra ledger and OpenSearch customer path.
+        </p>
+        <p class="nav"><a href="/tower/">Control tower</a> · <a href="/customer-ui/">OpenSearch tracking</a> · <a href="/audit-ui/">Cassandra audit</a></p>
+      </header>
+
+      <section class="chips" id="chips">
+        <button data-q="How is Global Parcel running right now?">Current picture</button>
+        <button data-q="Which hubs are driving SLA risk?">Hubs at risk</button>
+        <button data-q="What is the live fuel surcharge and in-flight cost exposure?">Cost exposure</button>
+        <button data-q="Where is PCL-LIVE-000001 and what did the driver note?">Track PCL-LIVE-000001</button>
+      </section>
+
+      <section class="chat" id="chat"></section>
+
+      <form id="askForm" class="composer">
+        <input id="question" placeholder="Ask about the live business…" autocomplete="off" />
+        <button type="submit">Ask</button>
+      </form>
+    </div>
+    <script src="./main.js"></script>
+  </body>
+</html>

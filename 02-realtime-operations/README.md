@@ -4,6 +4,10 @@
   <img src="assets/global-parcel-realtime-operations.png" alt="Global Parcel Demo - Realtime Operations" width="100%">
 </p>
 
+Part of the **[StreamHouse workshop](../README.md)** — this is the **operate** session: **Cassandra (DataStax HCD)** as the parcel ledger and **OpenSearch** as customer tracking search.
+
+In the StreamHouse path, **do not dual-write from `stream_parcel_events.py`**. Capture is Kafka; `python -m transform.shift_left` writes these same engines. Use the root `docker-compose.yml` (Cassandra + OpenSearch + Apache Kafka). Schema is created by the transform on first connect. Then open `/audit-ui/` and `/customer-ui/` on the StreamHouse API (`:8088`).
+
 This session expands the Global Parcel story into **transactional reliability at operational speed** on **IBM watsonx.data**, leveraging fit-for-purpose engines in one governed data platform:
 
 - **DataStax HCD (based on Apache Cassandra)** as the **trusted transactional backend ledger**: always-on, unbreakable-by-design architecture, and linearly scalable high-throughput writes.
@@ -17,9 +21,10 @@ Using **watsonx.data** here matters because teams do not need to force every wor
 
 ## Session positioning
 
-`01-data-federation` focused on governed historical and federated analytics.  
-`02-realtime-operations` introduces the operational transaction layer and search layer.  
-`03-accelerate-ai` will then consume these curated products for agentic workflows.
+StreamHouse capture (Kafka) feeds this session's engines.  
+`01-data-federation` is watsonx.data query over Iceberg + federated PostgreSQL.  
+`02-realtime-operations` is Cassandra ledger + OpenSearch search.  
+`03-accelerate-ai` consumes those curated products for agentic workflows.
 
 ---
 
@@ -248,7 +253,6 @@ flowchart TB
 8) Start OpenSearch and OpenSearch Dashboards:
 
 ```bash
-export OPENSEARCH_INITIAL_ADMIN_PASSWORD='GlobalParcel123!'
 docker compose up -d opensearch opensearch-dashboards
 docker compose ps
 ```

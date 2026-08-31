@@ -1,6 +1,6 @@
 # Global Parcel Hybrid Lakehouse Demo
 
-Part of the **[workshop overview](../README.md)** (sessions `01` → `02` → `03`).
+Part of the **[StreamHouse workshop](../README.md)** — this is the **query** session: **IBM watsonx.data** (Iceberg, Presto, PostgreSQL federation).
 
 Follow-along demo for running **IBM watsonx.data** locally and walking through a Global Parcel scenario:
 

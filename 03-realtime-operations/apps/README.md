@@ -1,11 +1,11 @@
 # Operate the business
 
-One FastAPI process on `:8081` serves JSON **and** the UIs. `app.mount(...)` in [`api.py`](api.py) maps a URL path to a folder of static files. The browser talks to `:8081`; the HTML lives next to this chapter.
+One FastAPI process on `:8081` serves JSON **and** the UIs. `app.mount(...)` in [`api.py`](api.py) maps a URL path to a folder of static files (`index.html`, JS, CSS). The browser talks to `:8081`.
 
 | URL | Mounted from | Reads |
 | --- | --- | --- |
-| http://localhost:8081/customer-ui/ | `frontend/customer-tracking` | **OpenSearch** |
-| http://localhost:8081/audit-ui/ | `frontend/audit-reconciliation` | **Cassandra** |
+| http://localhost:8081/customer-ui/ | `apps/frontend/customer-tracking` | **OpenSearch** |
+| http://localhost:8081/audit-ui/ | `apps/frontend/audit-reconciliation` | **Cassandra** |
 
 `/` redirects to `/customer-ui/`.
 

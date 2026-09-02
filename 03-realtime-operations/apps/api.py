@@ -57,7 +57,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-frontend = Path(__file__).resolve().parent.parent / "frontend"
+frontend = Path(__file__).resolve().parent / "frontend"
 app.mount(
     "/audit-ui",
     StaticFiles(directory=frontend / "audit-reconciliation", html=True),

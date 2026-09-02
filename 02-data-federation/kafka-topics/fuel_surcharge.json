@@ -1,0 +1,13 @@
+{
+  "tableName": "fuel_surcharge",
+  "schemaName": "default",
+  "topicName": "fuel.surcharge",
+  "message": {
+    "dataFormat": "json",
+    "fields": [
+      { "name": "region", "mapping": "region", "type": "VARCHAR" },
+      { "name": "fuel_surcharge", "mapping": "fuel_surcharge", "type": "DOUBLE" },
+      { "name": "updated_at", "mapping": "updated_at", "type": "VARCHAR" }
+    ]
+  }
+}

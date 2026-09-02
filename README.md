@@ -4,7 +4,7 @@
 
 Shaun Clowes introduced StreamHouse as a simple idea: continuously **capture**, **transform**, and **query** real-time data so the company is looking at a **current view of the business**.
 
-This workshop makes that idea concrete through a realistic Global Parcel scenario — and through the **IBM watsonx.data** vision: one platform, **fit-for-purpose engines**. You still build it yourself. The future of data and AI will not be defined by architecture diagrams. It will be defined by developers who turn these technologies into products that help customers understand and run their business in real time.
+This workshop makes that idea concrete through a realistic Global Parcel scenario — and through the **IBM watsonx.data** vision: one platform, **fit-for-purpose engines**. You still build it yourself.
 
 ```mermaid
 flowchart LR
@@ -37,24 +37,31 @@ flowchart LR
     end
 ```
 
+Work **in order**. One capture, one transform, then query, operate, and ask — the same parcels the whole way through.
+
+| Chapter | Folder | What you do |
+| --- | --- | --- |
+| **01 Capture & run** | [`01-streamhouse`](01-streamhouse/README.md) | Put Global Parcel on Kafka, shift-left into Cassandra, OpenSearch, and Iceberg, open the apps on `:8088` |
+| **02 Query** | [`02-data-federation`](02-data-federation/README.md) | watsonx.data Presto over that Iceberg, joined with live Kafka `fuel.surcharge` |
+| **03 Operate** | [`03-realtime-operations`](03-realtime-operations/README.md) | Ledger vs customer search: audit UI, tracking UI, OpenSearch Dashboards |
+| **04 Ask** | [`04-accelerate-ai`](04-accelerate-ai/README.md) | watsonx Orchestrate + Langflow on the same ledger and customer API |
+
 ---
 
 ## IBM products in this vision
 
-StreamHouse is the **spine**. These are the engines the spine writes and the products you show:
+One capture feeds engines that each do one job:
 
-| Product | Role in StreamHouse | How you run it (developer-first) |
+| Product | Role | How you run it (developer-first) |
 | --- | --- | --- |
-| **Apache Kafka** | Capture bus | Official `apache/kafka` image (KRaft) — same idea as Apache Cassandra in Docker |
-| **Apache Flink SQL** | Production transform contract | [`transform/flink/shift_left.sql`](transform/flink/shift_left.sql); laptop runtime is the Python job |
-| **IBM watsonx.data** | Iceberg + Presto + PostgreSQL federation | **Developer Edition** — [`01-data-federation`](01-data-federation/README.md) |
-| **Apache Cassandra** (DataStax HCD in product) | Authoritative parcel ledger | Official `cassandra` image — [`02-realtime-operations`](02-realtime-operations/README.md) |
-| **OpenSearch** | Customer tracking search | Official OpenSearch image — session 02 |
-| **watsonx Orchestrate** | Agents on those data products | **Developer Edition / ADK** — [`03-accelerate-ai`](03-accelerate-ai/README.md) |
+| **Apache Kafka** | Capture bus | Official `apache/kafka` image (KRaft) — chapter 01 |
+| **Apache Flink SQL** | Production transform contract | [`01-streamhouse/transform/flink/shift_left.sql`](01-streamhouse/transform/flink/shift_left.sql); laptop runtime is the Python job |
+| **IBM watsonx.data** | Iceberg + Presto + Kafka federation | **Developer Edition** — chapter 02 |
+| **Apache Cassandra** (DataStax HCD in product) | Authoritative parcel ledger | Official `cassandra` image — chapters 01 and 03 |
+| **OpenSearch** | Customer tracking search | Official OpenSearch image — chapters 01 and 03 |
+| **watsonx Orchestrate** | Agents on those data products | **Developer Edition / ADK** — chapter 04 |
 
-Confluent Cloud **Tableflow** is the managed Kafka→Iceberg path watsonx.data federates in production. On the laptop we materialize the same contract with open table files (`tableflow/materialize.py`) so you do not need a cloud account to learn the loop.
-
-Capture **once**. Transform **once**. Then each IBM engine does the job it is good at. That is the opposite of dual-writing from the producer, and the opposite of three disconnected labs.
+Confluent Cloud **Tableflow** is the managed Kafka→Iceberg path watsonx.data federates in production. On the laptop we materialize the same contract with open table files so you do not need a cloud account to learn the loop.
 
 ---
 
@@ -65,10 +72,10 @@ Capture **once**. Transform **once**. Then each IBM engine does the job it is go
 | Control tower | http://localhost:8088/tower/ | Current view (lakehouse materialization) |
 | Customer tracking | http://localhost:8088/customer-ui/ | **OpenSearch** |
 | Audit / reconciliation | http://localhost:8088/audit-ui/ | **Cassandra** |
-| Ask the business | http://localhost:8088/ask/ | Current-view tools (Orchestrate in session 03) |
+| Ask the business | http://localhost:3000/chat-lite | **watsonx Orchestrate** (session 04) |
 | OpenSearch Dashboards | http://localhost:5601 | `parcel-events-live` |
 | Kafka UI | http://localhost:8080 | Capture topics (`parcel.events`, `fuel.surcharge`) |
-| watsonx.data console | https://localhost:6443 | Iceberg + federated PostgreSQL |
+| watsonx.data console | https://localhost:6443 | Iceberg + federated Kafka (session 02) |
 
 Suggested parcels: `PCL-LIVE-000001`, `PCL-000001`.
 
@@ -78,8 +85,8 @@ Suggested parcels: `PCL-LIVE-000001`, `PCL-000001`.
 
 - Docker (or Podman) with Compose
 - Python **3.11+**
-- For session 01: **kind**, **kubectl**, **helm** (watsonx.data Developer Edition) — see [container-fundamentals](https://github.com/michelderu/container-fundamentals)
-- For session 03: watsonx Orchestrate ADK credentials (16 GB RAM recommended)
+- For session 02: **kind**, **kubectl**, **helm** (watsonx.data Developer Edition) — see [container-fundamentals](https://github.com/michelderu/container-fundamentals)
+- For session 04: watsonx Orchestrate ADK credentials (16 GB RAM recommended)
 
 ```bash
 python -m venv .venv
@@ -90,79 +97,16 @@ pip install -r requirements.txt
 
 ---
 
-## Build it
-
-Work from the repository root. Keep `PYTHONPATH=.`.
-
-### 1. Capture — put Global Parcel in motion
+## Start here
 
 ```bash
+source .venv/bin/activate
+cd 01-streamhouse
 docker compose up -d
-docker compose ps
-```
-
-Wait until **Cassandra** is `healthy` (first boot 1–2 minutes), OpenSearch answers on `:9200`, and Kafka on `:9092`. Inspect capture like you would CQL:
-
-```bash
-docker compose exec kafka /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list
-```
-
-Or open Kafka UI at [http://localhost:8080](http://localhost:8080). Then:
-
-```bash
 PYTHONPATH=. python -m capture.produce
 ```
 
-This replays historical journeys (`PCL-000001` …) and streams live scans (`PCL-LIVE-…`) plus fuel surcharge ticks onto Kafka. The business is a stream — including reference data finance used to dump nightly.
-
-Details: [`capture/README.md`](capture/README.md).
-
-### 2. Transform — shift left into IBM engines
-
-In a second terminal:
-
-```bash
-PYTHONPATH=. python -m transform.shift_left
-```
-
-Each scan is priced against the latest surcharge and SLA-flagged, then written to:
-
-- **Cassandra** `globalparcel_ops.parcel_events_by_parcel` — ledger
-- **OpenSearch** `parcel-events-live` — customer search
-- Kafka `parcel.events.enriched` / `parcel.current` — for lakehouse Tableflow
-
-Cassandra schema is created on first connect (same table as session 02). Flink SQL for the same contract: [`transform/flink/shift_left.sql`](transform/flink/shift_left.sql).
-
-Details: [`transform/README.md`](transform/README.md) and [`02-realtime-operations/README.md`](02-realtime-operations/README.md).
-
-### 3. Query — watsonx.data current view
-
-Laptop materialization (always on):
-
-```bash
-PYTHONPATH=. python -m tableflow.materialize
-```
-
-Topics become open tables under `data/warehouse/`. SQL: [`query/current_view.sql`](query/current_view.sql).
-
-**IBM query plane (session 01):** run [`01-data-federation/README.md`](01-data-federation/README.md). Load shipping history into **Iceberg**, start PostgreSQL fuel surcharge, **federate** it in watsonx.data, and join history + live surcharge in one Presto query — governed lakehouse SQL over the same Global Parcel business.
-
-Details: [`tableflow/README.md`](tableflow/README.md), [`query/README.md`](query/README.md).
-
-### 4. Run — apps and AI on those products
-
-```bash
-PYTHONPATH=. uvicorn apps.api:app --host 0.0.0.0 --port 8088
-```
-
-| You want to show | Open |
-| --- | --- |
-| Current picture of the business | http://localhost:8088/tower/ |
-| Customer “where is my parcel?” | http://localhost:8088/customer-ui/ (**OpenSearch**) |
-| Dispute / source of truth | http://localhost:8088/audit-ui/ (**Cassandra**) |
-| Agentic AI | [`03-accelerate-ai/README.md`](03-accelerate-ai/README.md) (**watsonx Orchestrate** + Langflow on the ledger and customer API) |
-
-Details: [`apps/README.md`](apps/README.md).
+Capture → transform → tableflow → apps: [`01-streamhouse/README.md`](01-streamhouse/README.md). Then continue in `02` → `03` → `04`. Facilitators: `./scripts/run-streamhouse.sh` from the workshop root.
 
 ---
 
@@ -172,31 +116,8 @@ Details: [`apps/README.md`](apps/README.md).
 | --- | --- |
 | Continuously capturing | Kafka UI / `kafka-console-consumer.sh` + `capture.produce` |
 | Transforming | Shift-left job writing **Cassandra + OpenSearch + Iceberg** |
-| Querying real-time data | watsonx.data Presto + control tower SQL |
+| Querying real-time data | watsonx.data Presto + control tower |
 | Current view of the business | Control tower, and federated surcharge joins |
 | Historical and live | `PCL-000001` (replay) and `PCL-LIVE-000001` (now) |
 | Applications, analytics, and AI | Customer UI, lakehouse SQL, Orchestrate |
 | Fit-for-purpose engines | Ledger ≠ search ≠ lakehouse — one capture |
-
----
-
-## Fast path (facilitators)
-
-```bash
-docker compose up -d
-source .venv/bin/activate
-./scripts/run-streamhouse.sh
-```
-
-Then open http://localhost:8088/tower/ and the Cassandra / OpenSearch UIs above. Session 01 and 03 remain the watsonx.data and Orchestrate labs.
-
----
-
-## Stop
-
-Ctrl+C the Python processes, then:
-
-```bash
-docker compose down
-rm -rf data/
-```

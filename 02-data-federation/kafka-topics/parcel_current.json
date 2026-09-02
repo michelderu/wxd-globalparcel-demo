@@ -1,0 +1,29 @@
+{
+  "tableName": "parcel_current",
+  "schemaName": "default",
+  "topicName": "parcel.current",
+  "message": {
+    "dataFormat": "json",
+    "fields": [
+      { "name": "parcel_id", "mapping": "parcel_id", "type": "VARCHAR" },
+      { "name": "event_ts", "mapping": "event_ts", "type": "VARCHAR" },
+      { "name": "status", "mapping": "status", "type": "VARCHAR" },
+      { "name": "hub_code", "mapping": "hub_code", "type": "VARCHAR" },
+      { "name": "hub_city", "mapping": "hub_city", "type": "VARCHAR" },
+      { "name": "hub_country", "mapping": "hub_country", "type": "VARCHAR" },
+      { "name": "region", "mapping": "region", "type": "VARCHAR" },
+      { "name": "latitude", "mapping": "latitude", "type": "DOUBLE" },
+      { "name": "longitude", "mapping": "longitude", "type": "DOUBLE" },
+      { "name": "exception_code", "mapping": "exception_code", "type": "VARCHAR" },
+      { "name": "customer_eta", "mapping": "customer_eta", "type": "VARCHAR" },
+      { "name": "delivery_note", "mapping": "delivery_note", "type": "VARCHAR" },
+      { "name": "origin_hub", "mapping": "origin_hub", "type": "VARCHAR" },
+      { "name": "destination_hub", "mapping": "destination_hub", "type": "VARCHAR" },
+      { "name": "base_rate", "mapping": "base_rate", "type": "DOUBLE" },
+      { "name": "fuel_surcharge", "mapping": "fuel_surcharge", "type": "DOUBLE" },
+      { "name": "invoice_total", "mapping": "invoice_total", "type": "DOUBLE" },
+      { "name": "sla_risk", "mapping": "sla_risk", "type": "BOOLEAN" },
+      { "name": "sla_reason", "mapping": "sla_reason", "type": "VARCHAR" }
+    ]
+  }
+}

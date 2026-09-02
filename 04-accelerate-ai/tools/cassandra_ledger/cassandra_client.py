@@ -1,4 +1,4 @@
-"""Shared Cassandra client for Global Parcel ledger tools (session 02 schema)."""
+"""Shared Cassandra client for Global Parcel ledger tools (session 01 schema)."""
 
 from __future__ import annotations
 

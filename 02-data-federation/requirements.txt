@@ -6,5 +6,3 @@ minio
 requests
 urllib3
 pyopenssl
-sqlalchemy
-psycopg2-binary

@@ -1,4 +1,0 @@
-cassandra-driver
-fastapi
-uvicorn
-opensearch-py

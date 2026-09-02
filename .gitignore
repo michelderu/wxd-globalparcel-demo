@@ -31,3 +31,6 @@ watsonx.data-developer-edition-installer/
 
 # Producer data
 generated/
+
+# Watsonx Data
+watsonx.data-developer-edition-installer.tar

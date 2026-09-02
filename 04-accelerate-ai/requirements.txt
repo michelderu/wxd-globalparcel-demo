@@ -1,5 +1,5 @@
-# Session 03 — watsonx Orchestrate ADK + Langflow
-# Install from 03-accelerate-ai/ with the repo-root venv active:
+# Session 04 — watsonx Orchestrate ADK + Langflow
+# Install from 04-accelerate-ai/ with the repo-root venv active:
 #   pip install -r requirements.txt
 
 ibm-watsonx-orchestrate>=2.10.0

@@ -1,6 +1,6 @@
-# Cassandra ledger tools (session 02 → 03)
+# Cassandra ledger tools
 
-Python tools that read the **authoritative parcel ledger** from session `02-realtime-operations`:
+Python tools that read the **authoritative parcel ledger** written by `transform.shift_left`:
 
 - Keyspace: `globalparcel_ops`
 - Table: `parcel_events_by_parcel`
@@ -16,22 +16,17 @@ Python tools that read the **authoritative parcel ledger** from session `02-real
 
 | Flow | Purpose |
 | --- | --- |
-| [langflow/parcel_opensearch_customer.json](langflow/parcel_opensearch_customer.json) | Customer-facing OpenSearch view via `GET /api/customer/{parcel_id}` |
+| [langflow/parcel_opensearch_customer.json](langflow/parcel_openSearch_customer.json) | Customer-facing OpenSearch view via `GET /api/customer/{parcel_id}` on `:8088` |
 
-Build: `python tools/langflow/build_customer_tracking_flow.py` — see [langflow/README.md](langflow/README.md). Reconciliation uses Cassandra Python tools on the agent, not Langflow.
+Reconciliation uses Cassandra Python tools on the agent, not Langflow.
 
 ## Prerequisites
-2. wxO Developer Edition running (`orchestrate env activate local`).
 
-```bash
-cd 02-realtime-operations
-docker compose up -d cassandra
-# … create schema + seed (see 02 README)
-```
+Capture still up (Cassandra `:9042`, apps `:8088`). wxO Developer Edition running (`orchestrate env activate local`).
 
 ## Import into wxO
 
-From `03-accelerate-ai/`:
+From `04-accelerate-ai/`:
 
 ```bash
 PKG=tools/cassandra_ledger
@@ -41,7 +36,7 @@ orchestrate tools import -k python -p "$PKG" -f "$PKG/get_parcel_latest_status.p
 orchestrate tools import -k python -p "$PKG" -f "$PKG/get_parcel_delivery_notes.py" -r "$PKG/requirements.txt"
 orchestrate tools import -k python -p "$PKG" -f "$PKG/reconcile_parcel_dispute.py" -r "$PKG/requirements.txt"
 
-orchestrate agents import -f agents/parcel_assistant.yml
+orchestrate agents import -f agents/parcel_assistant_cassandra.yml
 ```
 
 ## Networking (wxO container → host Cassandra)
@@ -63,7 +58,7 @@ Optional overrides:
 ## Test without wxO
 
 ```bash
-cd 03-accelerate-ai
+cd 04-accelerate-ai
 CASSANDRA_HOST=127.0.0.1 python scripts/test_ledger_tools.py PCL-000001
 ```
 

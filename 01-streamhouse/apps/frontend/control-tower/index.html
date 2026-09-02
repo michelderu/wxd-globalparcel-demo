@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Global Parcel — Current view</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">StreamHouse · Global Parcel</p>
+          <h1>Current view of the business</h1>
+          <p class="subtitle">Historical journeys and live scans, one picture, continuously updated.</p>
+        </div>
+        <div class="topbar-meta">
+          <div class="pill" id="freshness">Waiting for Tableflow…</div>
+          <nav class="links">
+            <a href="/tower/">Control tower</a>
+            <a href="/customer-ui/">Customer tracking</a>
+            <a href="/audit-ui/">Cassandra audit</a>
+            <a href="http://localhost:3000/chat-lite">Ask the business</a>
+          </nav>
+        </div>
+      </header>
+
+      <section class="kpis" id="kpis"></section>
+
+      <main class="grid">
+        <section class="card">
+          <h2>Mix by status</h2>
+          <div id="statusMix" class="bars"></div>
+        </section>
+        <section class="card">
+          <h2>Live fuel surcharge</h2>
+          <div id="surcharge" class="surcharge"></div>
+        </section>
+        <section class="card wide">
+          <h2>Hubs driving the next hour</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Hub</th>
+                <th>In flight</th>
+                <th>SLA at risk</th>
+                <th>Weather</th>
+                <th>Exposure</th>
+              </tr>
+            </thead>
+            <tbody id="hubRows"></tbody>
+          </table>
+        </section>
+        <section class="card wide">
+          <h2>Scan ticker</h2>
+          <div id="ticker" class="ticker"></div>
+        </section>
+      </main>
+    </div>
+    <script src="./main.js"></script>
+  </body>
+</html>

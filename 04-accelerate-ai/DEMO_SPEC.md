@@ -20,7 +20,7 @@ Demonstrate how Global Parcel can:
 ## 3) Audience
 
 - Platform and integration engineers evaluating agentic layers on curated data products
-- Workshop participants who completed sessions 01 (federation) and 02 (realtime ops)
+- Workshop participants who just walked capture, query, and operate on the same parcels
 - Architects comparing low-code flows (Langflow) with governed orchestration (wxO)
 
 ---
@@ -69,7 +69,7 @@ flowchart LR
 | Step | Action | Success check |
 | --- | --- | --- |
 | 1 | `pip install -r requirements.txt` | `orchestrate --version` prints a 2.x version |
-| 2 | Configure `03-accelerate-ai/.env` | Auth method variables set (myIBM or SaaS) |
+| 2 | Configure `04-accelerate-ai/.env` | Auth method variables set (myIBM or SaaS) |
 | 3 | `orchestrate server start -e .env --with-langflow` | API docs at `http://localhost:4321/docs` |
 | 4 | `orchestrate env activate local` + `orchestrate agents import -f agents/ask_orchestrate.yml` | `orchestrate agents list` shows AskOrchestrate on `granite-3-8b-instruct` |
 | 5 | `orchestrate chat start` | Browser opens `http://localhost:3000/chat-lite` |
@@ -80,7 +80,7 @@ flowchart LR
 
 ### Suggested demo prompts
 
-- "What data products did we build in sessions 01 and 02 for Global Parcel?"
+- "What data products did we build in sessions 01, 02, and 03 for Global Parcel?"
 - "What is the latest status of PCL-000001 according to the Cassandra ledger?"
 - "What delivery notes are on the ledger for PCL-000001?"
 - "Customer claims NOT DELIVERED for PCL-LIVE-000001 — what does customer tracking show, and reconcile against the ledger (quote driver notes)."

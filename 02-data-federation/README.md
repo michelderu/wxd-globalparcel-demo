@@ -1,25 +1,23 @@
 # Global Parcel Hybrid Lakehouse Demo
 
-Part of the **[StreamHouse workshop](../README.md)** — this is the **query** session: **IBM watsonx.data** (Iceberg, Presto, PostgreSQL federation).
+Part of the **[StreamHouse workshop](../README.md)** — the **query** chapter: **IBM watsonx.data** (Iceberg, Presto, Kafka federation) on the parcels you already captured.
 
-Follow-along demo for running **IBM watsonx.data** locally and walking through a Global Parcel scenario:
-
-- Ingest shipping history into Iceberg
+- Load those events into Iceberg
 - Query operational insights with Presto
-- Federate lakehouse data with PostgreSQL fuel surcharge rows
+- Join lakehouse history with the live Kafka `fuel.surcharge` topic
 
 ---
 
 ## Use case
 
-Global Parcel wants governed analytics with data sovereignty in mind: historical parcel events stay in lakehouse storage, while **live** fuel surcharge values remain in PostgreSQL until you federate both in one SQL query—so invoice impact reflects **base rate + surcharge** by region.
+Global Parcel wants governed analytics with data sovereignty in mind: historical parcel events stay in lakehouse storage, while **live** fuel surcharge values stay on Kafka until you federate both in one SQL query—so invoice impact reflects **base rate + surcharge** by region.
 
 You reproduce that flow end-to-end on a local **kind** cluster with watsonx.data Developer Edition where applicable.
 
 ```mermaid
 flowchart TB
     subgraph Host["Host machine (container runtime)"]
-        PG[("PostgreSQL\nshipping_ops / fuel_surcharge")]
+        K[("Apache Kafka\nfuel.surcharge")]
     end
 
     subgraph Kind["Kind Kubernetes cluster"]
@@ -37,30 +35,30 @@ flowchart TB
     UI --> Presto
     Spark -->|load CSV| Iceberg
     Presto -->|read| Iceberg
-    Presto -->|federated join| PG
+    Presto -->|federated join| K
 ```
 
 ---
 
 ## Working directory
-**Assume your shell working directory is `01-data-federation/`.**
+**Assume your shell working directory is `02-data-federation/`.** Capture and tableflow should already have written `01-streamhouse/data/warehouse/`.
 
 ```bash
-cd 01-data-federation
+cd 02-data-federation
 ```
 
 ## Python dependencies
 
-Here we build upon the [installation prerequisites](../README.md#install-prerequisites-all-sessions).
+Here we build upon the [installation prerequisites](../README.md#prerequisites).
 Assume the repository-root virtual environment is already active (`../.venv`).
 
-Install the required Python dependencies for this session using the `requirements.txt`:
+Install the required Python dependencies for this chapter using the `requirements.txt`:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-This will install key packages like `pandas` and `sqlalchemy`, needed to run the data generator scripts and interact with Postgres from Python.
+This installs `pandas` and `pyarrow`, used by the warehouse export script.
 
 ---
 
@@ -120,7 +118,6 @@ Even in manual mode, get the official package from IBM docs:
 ```bash
 rm -rf ./watsonx.data-developer-edition-installer
 tar -xvf watsonx.data-developer-edition-installer.tar
-rm watsonx.data-developer-edition-installer.tar
 ```
 
 Then install with Helm from the extracted `watsonx.data-developer-edition-installer` directory:
@@ -174,12 +171,10 @@ wxd-pg-postgres-0                                 1/1     Running     0         
 
 ### 4) Port-forward UI and dependencies 🌐
 
-Forwarding on `0.0.0.0` lets other hosts reference your machine IP:
-
 ```bash
-nohup kubectl port-forward -n wxd service/lhconsole-ui-svc 6443:443 --address 0.0.0.0 2>&1 &
-nohup kubectl port-forward -n wxd service/ibm-lh-minio-svc 9001:9001 --address 0.0.0.0 2>&1 &
-nohup kubectl port-forward -n wxd service/ibm-lh-mds-thrift-svc 8381:8381 --address 0.0.0.0 2>&1 &
+nohup kubectl port-forward -n wxd service/lhconsole-ui-svc 6443:443 2>&1 &
+nohup kubectl port-forward -n wxd service/ibm-lh-minio-svc 9001:9001 2>&1 &
+nohup kubectl port-forward -n wxd service/ibm-lh-mds-thrift-svc 8381:8381 2>&1 &
 ```
 
 > [!TIP]
@@ -191,19 +186,19 @@ Open **`https://localhost:6443/`**. Expect a browser warning for the Development
 
 ---
 
-## 5) Follow-along — Load shipping history into Iceberg 📦
+## 5) Follow-along — Load StreamHouse history into Iceberg 📦
 
-When logistics markets are in flux, it’s vital to pinpoint **where delays concentrate** and **how baseline shipping costs** vary by origin. This foundational insight empowers accurate pricing discussions and proactive service management—*before* surcharges become a factor. In a real-world scenario, Global Parcel’s backend tracks shipping events and periodically exports this as Parquet on object storage for analytics.
+The capture job wrote parcel scans to Kafka and materialized them under `01-streamhouse/data/warehouse/`. This chapter loads **that same business** into watsonx.data so Presto is the SQL surface for the current view.
 
-### Generate a sample shipping history
+### Export StreamHouse parcel events (like TableFlow in the cloud)
 
-For this lab, we simulate the backend by generating a CSV file representing historical shipments. Next, you’ll use watsonx.data’s Spark engine to convert this CSV to a Parquet-based Iceberg table for efficient analytics.
-
-To generate the CSV:
+From `02-data-federation/`:
 
 ```bash
-python scripts/generate_shipping_history.py
+PYTHONPATH=../01-streamhouse python scripts/export_streamhouse_history.py
 ```
+
+This writes **`shipping_history.csv`** here. If Tableflow has not produced warehouse files yet, the script writes a StreamHouse-shaped fallback (same hubs and regions) and tells you so.
 
 ### Load CSV into watsonx.data
 
@@ -211,144 +206,106 @@ python scripts/generate_shipping_history.py
 2. Navigate to **Infrastructure manager → Add component → IBM Spark** (`Next`).
 3. Display name (for example `spark-01`); associate catalog **`iceberg_bucket`**.
 4. Navigate to **Data manager → `iceberg_data` → ⋮ → Create schema** named **`shipping_backend`**.
-5. Under **`shipping_backend` → ⋮ → Create table from file** and select **`shipping_history.csv`** which you just generated in **`01-data-federation/`**.
+5. Under **`shipping_backend` → ⋮ → Create table from file** and select **`shipping_history.csv`** which you just generated in **`02-data-federation/`**.
 6. Target table **`shipping_history`**, select your just created Spark engine, then click **Done**.
 7. On the **Ingestion history** tab click the refresh button to check the progress.
 
 ### Query delayed shipments
 
-Navigate to **Query workspace** and run the following query:
+Navigate to **Query workspace** and run the following query (same idea as [`../01-streamhouse/query/current_view.sql`](../01-streamhouse/query/current_view.sql)):
 
 ```sql
-SELECT origin_city, COUNT(*) AS volume, AVG(shipping_cost) AS avg_cost
+SELECT origin_hub, origin_city, COUNT(*) AS scans,
+       COUNT(*) FILTER (WHERE exception_code = 'WX_DELAY') AS weather_delays
 FROM iceberg_data.shipping_backend.shipping_history
-WHERE status = 'Delayed'
-GROUP BY origin_city
-ORDER BY volume DESC;
+GROUP BY origin_hub, origin_city
+ORDER BY weather_delays DESC, scans DESC;
 ```
 
 Bingo! We have a clear overview of the delays for parcel delivery!
 
 ---
 
-## 6) Follow-along — Fuel Surcharge in PostgreSQL (Federated) ⛽
+## 6) Follow-along — Fuel Surcharge from Kafka (Federated) ⛽
 
 It’s the fate of every global shipper: just as supply chains settle, **fuel prices spike**. Overnight, invoices bloat with mysterious surcharges. Did you overpay? Or did your margins simply vanish, line by line? Welcome to the world where finance and operations collide, and only the data will tell you who won.
 
-Ready to chase down these elusive fuel surcharges? Time to build the real story—by joining **parcel history** (Iceberg) with fresh, volatile **fuel prices** (PostgreSQL) in a single, panoramic query.
+Ready to chase down these elusive fuel surcharges? Time to build the real story—by joining **parcel history** (Iceberg) with fresh, volatile **fuel prices** (Kafka) in a single, panoramic query.
 
-### Start PostgreSQL
+`capture.produce` is still writing `fuel.surcharge`. Use the same host IP you advertised as `KAFKA_HOST_IP` (not `localhost`, not `kafka`).
 
-Global Parcel works with an external supplier to acquire a database with fuel surcharge pricing. This database is provided as PostgreSQL. In this lab, we simulate it by running PostgreSQL in Docker.
+### Add Kafka as a federated catalog
 
-```bash
-docker run --name shipping-postgres \
-  -e POSTGRES_PASSWORD=postgres \
-  -e POSTGRES_DB=shipping_ops \
-  -p 5432:5432 \
-  -d postgres:latest
-```
+Register that broker as a watsonx.data catalog so Presto can JOIN Iceberg history with live `fuel.surcharge` in one SQL statement. IBM calls that **zero-copy**: the ticks stay on Kafka; Presto reads them in place.
 
-Now generate fuel surcharge reference data:
-
-```bash
-python scripts/generate_fuel_surcharge.py
-```
-
-This writes **`fuel_surcharge.csv`** in `01-data-federation/` as well as storing it into your newly started Postgresql database.
-
-To confirm the fuel surcharge data loaded correctly, you can connect to the running Postgres container and inspect the data:
-
-1. Start a shell inside the container:
-```bash
-docker exec -it shipping-postgres psql -U postgres -d shipping_ops
-```
-2. List available tables:
-```sql
-\dt
-```
-3. View the fuel surcharge table contents:
-```sql
-SELECT * FROM fuel_surcharge;
-```
-
-You should see the region and fuel surcharge values. To exit the `psql` session, type `\q`.
-
-
-### Connection string for watsonx.data (host-visible IP)
-The below commands will get you the full connection string for Postgresql. We just need the IP number for watsonx.data:
-
-```bash
-# For Linux:
-printf 'postgresql://postgres:postgres@%s:5432/shipping_ops\n' "$(hostname -I | awk '{print $1}')"
-
-# For macOS:
-printf 'postgresql://postgres:postgres@%s:5432/shipping_ops\n' "$(ipconfig getifaddr en0)"
-
-# For Windows (PowerShell):
-Write-Host "postgresql://postgres:postgres@$(Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.IPAddress -notlike '127.*' -and $_.InterfaceAlias -match 'Wi-Fi|Ethernet' } | Select-Object -First 1 -ExpandProperty IPAddress):5432/shipping_ops"
-```
-
-Use that `host IP` where the workload inside the cluster can reach Postgres on your workstation (typically your LAN/Wi‑Fi address, **not** `127.0.0.1`).
-
-### Add PostgreSQL as a federated catalog
-
-This step configures **watsonx.data** to "federate" (connect to and query) your running PostgreSQL instance. You're adding your Postgres database—populated with the fuel surcharge data—as a new federated catalog inside watsonx.data. 
-
-By doing so, queries executed via Presto on watsonx.data can seamlessly JOIN data from your Iceberg tables **and** from this live Postgres table (`fuel_surcharge`) in the same SQL statement. This is what IBM refers to as a **zero-copy** approach: data remains in-place in each system, with no need to duplicate or physically move the data. Instead, federation makes both historical and live/operational data queryable "as one"—with **zero-copy access**.
-
-The instructions walk you through using the watsonx.data infrastructure manager UI to register the Postgres connection (fuel surcharge data) with the right network info, credentials, and catalog name (`shipping_ops`). After this, your lakehouse SQL can tap into both historical and live operational data in a unified way, without copying or ETL overhead.
-
-1. Navigate to **Infrastructure manager → Add component → PostgreSQL**.
-2. Example fields:
-   - Display name: `Fuel surcharge pricing`
-   - Database name: `shipping_ops`
-   - Hostname: IP from the command above (reachable from pods)
-   - Port: `5432`
-   - Username / password: `postgres` / `postgres`
-3. Click **Test connection** to validate access to the database works.
-4. Check `Associate catalog`:
-  - Catalog name: `shipping_ops`
-5. Click `Create`
+1. Navigate to **Infrastructure manager → Add component → Apache Kafka**.
+2. Fields:
+   - Display name: `kafka-01`
+   - Hostname: `$KAFKA_HOST_IP` (`hostname -I | awk '{print $1}'` on Linux)
+   - Port: `9092`
+   - SASL: off (PLAINTEXT, no username or password)
+3. Click **Test connection**.
+4. Check **Associate catalog**:
+   - Catalog name: `shipping_ops`
+5. Click **Create**.
 
 Now associate the catalog with Presto for federated querying:
 
-1. On **Infrastructure manager** hover over the newly created catalog `shipping_ops`.
-2. Click `Manage associations`
-3. Check `presto-01` and click `Save and restart engine`
+1. On **Infrastructure manager**, hover the `shipping_ops` catalog.
+2. Click **Manage associations**.
+3. Check `presto-01` and click **Save and restart engine**. Wait until the Presto outline is solid.
+
+Add the topic definition (Presto table JSON, not Avro):
+
+1. Click the Kafka data source in **Infrastructure manager**.
+2. Click **Add topics**.
+3. Upload [`kafka-topics/fuel_surcharge.json`](kafka-topics/fuel_surcharge.json) (underscore, not hyphen).
+4. Click **Save**.
+
+Associate the new catalog with Presto:
+
+1. Hover the `shipping_ops` catalog → **Manage associations**.
+2. Check `presto-01`.
+3. Click **Save and restart engine**. Wait until the outline is solid.
+
+Check federation in **Query workspace** (engine `presto-01`). Data Manager will not show a `default` schema or sample grid for Kafka. `SHOW SCHEMAS FROM shipping_ops` returns 0 rows in this watsonx.data build — that is expected. Query the table:
+
+```sql
+SELECT region, fuel_surcharge, updated_at
+FROM shipping_ops.default.fuel_surcharge
+LIMIT 20;
+```
 
 ### Query shipping + fuel surcharge
 
-This step demonstrates how to query both the historical parcel shipping data (stored in Iceberg tables) and the *live* fuel surcharge reference data (in PostgreSQL, federated via watsonx.data) together in a single SQL query. 
+You’re joining StreamHouse parcel events (Iceberg) with the live fuel surcharge (Kafka) in one Presto query.
 
-You’re joining the shipping cost for each package with the current fuel surcharge for its region, calculating the full invoice total on the fly. The join operation here is powered by Presto’s ability to access data from *multiple backends* (your Iceberg tables and the federated PostgreSQL catalog) as if they were all part of the same database. 
-
-**What’s important:**  
-- `iceberg_data.shipping_backend.shipping_history` is your historical shipping cost data.
-- `shipping_ops.public.fuel_surcharge` represents the live fuel surcharge table exposed from PostgreSQL.
-- The result gives you, for each package, the base shipping rate, the region's current fuel surcharge, and the computed invoice total—**without duplicating or transferring any data across systems**.
-
-This is a core advantage of data federation: operational and analytical data can be kept in the systems where they belong, recombined at query time, making analytics more accurate and infrastructure more efficient.
+**What’s important:**
+- `iceberg_data.shipping_backend.shipping_history` is the StreamHouse capture (same parcels as the control tower).
+- `shipping_ops.default.fuel_surcharge` is the live fuel surcharge topic from Kafka.
+- The result is **base rate + surcharge** by region — the IBM Lakehouse version of the shift-left `invoice_total`.
 
 ```sql
 SELECT
-  s.package_id,
+  s.parcel_id,
   s.region,
-  s.shipping_cost AS base_rate,
+  s.status,
+  s.base_rate,
   f.fuel_surcharge,
-  (s.shipping_cost + f.fuel_surcharge) AS total_invoice
+  (s.base_rate + f.fuel_surcharge) AS total_invoice
 FROM iceberg_data.shipping_backend.shipping_history s
-JOIN shipping_ops.public.fuel_surcharge f ON s.region = f.region
-LIMIT 10;
+JOIN shipping_ops.default.fuel_surcharge f ON s.region = f.region
+WHERE s.status IN ('IN_TRANSIT')
+LIMIT 20;
 ```
 
 ---
 
 ## Recap
 
-You stored parcel history in **Iceberg**, explored it with **Presto**, joined **PostgreSQL** surcharge rows in one query—so totals reflect governed history plus operational reference data **without** duplicating surcharge ETL every time indexes move.
+You loaded parcel history into **Iceberg**, explored it with **Presto**, and joined **live Kafka** surcharge ticks in one query—so totals reflect governed history plus operational prices **without** copying surcharge rows into the lakehouse.
 
-Hybrid patterns (**Iceberg**, Presto-class SQL, standard DB connectivity) align with sovereignty and portability: authoritative events stay where policy allows while joins reach systems you already operate.
+Next: the same scans on the **ledger** and **customer search** — [`../03-realtime-operations/README.md`](../03-realtime-operations/README.md).
 
 ---
 
@@ -365,6 +322,5 @@ docker start wxd-control-plane
 
 ```bash
 kind delete cluster --name wxd
-docker rm -f shipping-postgres
 docker system prune -a      # destructive; removes unused Docker data
 ```

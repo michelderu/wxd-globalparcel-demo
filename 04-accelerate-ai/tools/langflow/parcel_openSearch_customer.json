@@ -512,7 +512,7 @@
                 "trace_as_input": true,
                 "trace_as_metadata": true,
                 "type": "str",
-                "value": "http://172.17.0.1:8081/api/customer/"
+                "value": "http://172.17.0.1:8088/api/customer/"
               }
             }
           },
@@ -1647,7 +1647,7 @@
       "zoom": 0.85
     }
   },
-  "description": "Customer-facing parcel tracking from session 02 OpenSearch via GET /api/customer/{parcel_id} (same data as /customer-ui/). Use wxO Cassandra ledger tools separately for reconciliation.",
+  "description": "Customer-facing parcel tracking from StreamHouse OpenSearch via GET /api/customer/{parcel_id} on :8088 (same data as /customer-ui/). Use wxO Cassandra ledger tools separately for reconciliation.",
   "endpoint_name": "parcel-opensearch-customer",
   "id": "b2add2c6-35ba-4077-b76d-7aab009ae06b",
   "is_component": false,

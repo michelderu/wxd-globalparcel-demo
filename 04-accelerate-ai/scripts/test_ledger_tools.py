@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Smoke-test Cassandra ledger tools against a local session 02 cluster."""
+"""Smoke-test Cassandra ledger tools against the session 01 StreamHouse cluster."""
 
 from __future__ import annotations
 

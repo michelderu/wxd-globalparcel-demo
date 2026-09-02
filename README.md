@@ -72,10 +72,10 @@ Confluent Cloud **Tableflow** is the managed Kafka→Iceberg path watsonx.data f
 | Control tower | http://localhost:8088/tower/ | Current view (lakehouse materialization) |
 | Customer tracking | http://localhost:8088/customer-ui/ | **OpenSearch** |
 | Audit / reconciliation | http://localhost:8088/audit-ui/ | **Cassandra** |
-| Ask the business | http://localhost:3000/chat-lite | **watsonx Orchestrate** (session 04) |
+| Ask the business | http://localhost:3000/chat-lite | **watsonx Orchestrate** |
 | OpenSearch Dashboards | http://localhost:5601 | `parcel-events-live` |
 | Kafka UI | http://localhost:8080 | Capture topics (`parcel.events`, `fuel.surcharge`) |
-| watsonx.data console | https://localhost:6443 | Iceberg + federated Kafka (session 02) |
+| watsonx.data console | https://localhost:6443 | Iceberg + federated Kafka |
 
 Suggested parcels: `PCL-LIVE-000001`, `PCL-000001`.
 
@@ -85,8 +85,8 @@ Suggested parcels: `PCL-LIVE-000001`, `PCL-000001`.
 
 - Docker (or Podman) with Compose
 - Python **3.11+**
-- For session 02: **kind**, **kubectl**, **helm** (watsonx.data Developer Edition) — see [container-fundamentals](https://github.com/michelderu/container-fundamentals)
-- For session 04: watsonx Orchestrate ADK credentials (16 GB RAM recommended)
+- For chapter 02: **kind**, **kubectl**, **helm** (watsonx.data Developer Edition) — see [container-fundamentals](https://github.com/michelderu/container-fundamentals)
+- For chapter 04: watsonx Orchestrate ADK credentials (16 GB RAM recommended)
 
 ```bash
 python -m venv .venv
@@ -102,11 +102,12 @@ pip install -r requirements.txt
 ```bash
 source .venv/bin/activate
 cd 01-streamhouse
+export KAFKA_HOST_IP=$(hostname -I | awk '{print $1}')
 docker compose up -d
 PYTHONPATH=. python -m capture.produce
 ```
 
-Capture → transform → tableflow → apps: [`01-streamhouse/README.md`](01-streamhouse/README.md). Then continue in `02` → `03` → `04`. Facilitators: `./scripts/run-streamhouse.sh` from the workshop root.
+Capture → transform → tableflow → apps: [`01-streamhouse/README.md`](01-streamhouse/README.md). Then continue in `02` → `03` → `04`.
 
 ---
 

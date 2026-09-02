@@ -16,7 +16,6 @@ Here both facts are captured as Kafka topics from the first second:
 | `fuel.surcharge` | `region` | Compacted live price ticks |
 
 ```bash
-docker compose up -d
 PYTHONPATH=. python -m capture.produce
 ```
 

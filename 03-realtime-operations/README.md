@@ -17,19 +17,6 @@ You do not force every workload into the lakehouse. Ledger and search stay in en
 
 ---
 
-## Where this sits in the workshop
-
-```mermaid
-flowchart LR
-    C[01 Capture] --> Q[02 Query]
-    Q --> O[03 Operate]
-    O --> A[04 Ask]
-```
-
-Same Kafka, same transform, same `:8088` apps. Here you look at **why** the ledger and the customer index are different products.
-
----
-
 ## Business case
 
 Global Parcel is experiencing growth in parcel volume, regions, and service-level promises. Legacy operational patterns struggle with two opposing needs:
@@ -63,13 +50,7 @@ flowchart LR
 
 ## Hands-on
 
-From **`01-streamhouse/`**:
-
-```bash
-source ../.venv/bin/activate
-```
-
-Confirm the engines:
+From **`01-streamhouse/`**, confirm the engines:
 
 ```bash
 docker compose exec -T cassandra cqlsh -e "SELECT COUNT(*) FROM globalparcel_ops.parcel_events_by_parcel;"
@@ -116,39 +97,16 @@ This view is what the customer sees. It does **not** expose driver notes — tho
 
 **Delivery driver notes** are short field messages left at each scan. They live on the **Cassandra ledger**. Agents in the next chapter quote them for delays, disputes, or proof of delivery. The customer OpenSearch index exposes status and timeline only.
 
-| Store | `delivery_note` | Who reads it |
-| --- | --- | --- |
-| **Cassandra ledger** | Yes — every scan | `get_parcel_delivery_notes`, `get_parcel_timeline`, `reconcile_parcel_dispute` |
-| **OpenSearch** `parcel-events-live` | No | Langflow → `GET /api/customer/{parcel_id}` on `:8088` |
-| **Audit UI** | Yes (timeline) | Humans, then agents |
+| Store | `delivery_note` |
+| --- | --- |
+| **Cassandra ledger** | Yes — every scan |
+| **OpenSearch** `parcel-events-live` | No |
+| **Audit UI** | Yes (timeline) |
 
 Example notes:
 
 - `Sorted into outbound lane at FRA-01; cage GP-412.`
 - `Weather delay — ramp closed for de-icing; customer ETA may slip.`
 - `Delivered at Chicago; signed by recipient.`
-
-### Ports the agents use
-
-| Service | Port | Consumer |
-| --- | --- | --- |
-| Cassandra CQL | `9042` | wxO Python ledger tools (`CASSANDRA_HOST=host.docker.internal` or `172.17.0.1` on Linux) |
-| OpenSearch | `9200` | Host API only |
-| StreamHouse API | `8088` | Langflow → `GET /api/customer/{parcel_id}` |
-| Langflow MCP | `7861` | wxO toolkit → customer flow |
-
-```bash
-# Quick checks from a container on Linux
-docker run --rm curlimages/curl -s http://172.17.0.1:8088/api/health
-```
-
-wxO and Langflow run in Docker — use **`172.17.0.1`** (not `localhost`) for host services on Linux. Edit **Customer API base** in `04-accelerate-ai/tools/langflow/parcel_openSearch_customer.json` if needed.
-
-| Question | Tool path |
-| --- | --- |
-| What does the **customer** see? | Langflow → `GET /api/customer/{parcel_id}` |
-| What does the **ledger** say? | wxO `get_parcel_latest_status`, `get_parcel_timeline` |
-| What did **drivers** record? | wxO `get_parcel_delivery_notes` |
-| **Reconcile** a dispute | wxO `reconcile_parcel_dispute` |
 
 Continue with [`../04-accelerate-ai/README.md`](../04-accelerate-ai/README.md).

@@ -16,17 +16,6 @@ Same parcels, now with an agent: ADK locally, Langflow as an MCP tool, chat on t
 
 ---
 
-## Where this sits in the workshop
-
-| Chapter | Capability |
-| --- | --- |
-| **01 — Capture** | Kafka, shift-left into Cassandra + OpenSearch + Iceberg, apps `:8088` |
-| **02 — Query** | Iceberg history + federated Kafka `fuel.surcharge` in watsonx.data |
-| **03 — Operate** | Ledger vs customer search (audit UI, tracking UI, Dashboards) |
-| **04 — Ask** | ADK + Langflow + local Developer Edition |
-
----
-
 ## What you will do
 
 1. Install the **ADK** (`ibm-watsonx-orchestrate`) in the repo Python environment.
@@ -405,12 +394,6 @@ orchestrate server reset -e .env
 ```
 
 `orchestrate server purge` **does not work** with user-managed Docker (`Cannot delete VM host…`). Use `reset` instead. `purge` is only for the Lima/QEMU install path.
-
----
-
-## Demo script
-
-Facilitators: see **[DEMO_SPEC.md](DEMO_SPEC.md)** for timing, prompts, and success checks.
 
 ---
 

@@ -20,7 +20,6 @@ Wait until **Cassandra** is `healthy` (first boot 1–2 minutes), **OpenSearch**
 ```bash
 docker compose exec cassandra nodetool status
 curl -s http://localhost:9200
-docker compose ps
 ```
 
 OpenSearch should return a JSON cluster name. Then put the business on the bus:
@@ -84,33 +83,6 @@ PYTHONPATH=. uvicorn apps.api:app --host 0.0.0.0 --port 8088
 | Dispute / source of truth | http://localhost:8088/audit-ui/ (**Cassandra**) |
 
 Details: [`apps/README.md`](apps/README.md). Next: query this business in watsonx.data ([`../02-data-federation/README.md`](../02-data-federation/README.md)), then the operations walkthrough ([`../03-realtime-operations/README.md`](../03-realtime-operations/README.md)).
-
-### Kafka from watsonx.data (Kind)
-
-watsonx.data cannot use `localhost` or the Compose name `kafka`. Recreate the broker so it advertises a reachable IP, then use that IP in the wxd connection test (port `9092`, PLAINTEXT, no username/password):
-
-```bash
-export KAFKA_HOST_IP=$(hostname -I | awk '{print $1}')
-echo "$KAFKA_HOST_IP"
-docker compose up -d --force-recreate kafka
-```
-
-If Kind still cannot route to your LAN address, try `export KAFKA_HOST_IP=172.17.0.1` and recreate again.
-
----
-
-## Fast path (facilitators)
-
-From the workshop root:
-
-```bash
-source .venv/bin/activate
-./scripts/run-streamhouse.sh
-```
-
-Or from this folder: `./scripts/run-streamhouse.sh`.
-
-Then open http://localhost:8088/tower/ and the Cassandra / OpenSearch UIs above.
 
 ---
 

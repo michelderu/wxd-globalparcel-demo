@@ -232,8 +232,6 @@ It’s the fate of every global shipper: just as supply chains settle, **fuel pr
 
 Ready to chase down these elusive fuel surcharges? Time to build the real story—by joining **parcel history** (Iceberg) with fresh, volatile **fuel prices** (Kafka) in a single, panoramic query.
 
-`capture.produce` is still writing `fuel.surcharge`. Use the same host IP you advertised as `KAFKA_HOST_IP` (not `localhost`, not `kafka`).
-
 ### Add Kafka as a federated catalog
 
 Register that broker as a watsonx.data catalog so Presto can JOIN Iceberg history with live `fuel.surcharge` in one SQL statement. IBM calls that **zero-copy**: the ticks stay on Kafka; Presto reads them in place.
@@ -241,7 +239,7 @@ Register that broker as a watsonx.data catalog so Presto can JOIN Iceberg histor
 1. Navigate to **Infrastructure manager → Add component → Apache Kafka**.
 2. Fields:
    - Display name: `kafka-01`
-   - Hostname: `$KAFKA_HOST_IP` (`hostname -I | awk '{print $1}'` on Linux)
+   - Hostname: `$KAFKA_HOST_IP` (set when you started compose)
    - Port: `9092`
    - SASL: off (PLAINTEXT, no username or password)
 3. Click **Test connection**.
@@ -249,17 +247,11 @@ Register that broker as a watsonx.data catalog so Presto can JOIN Iceberg histor
    - Catalog name: `shipping_ops`
 5. Click **Create**.
 
-Now associate the catalog with Presto for federated querying:
-
-1. On **Infrastructure manager**, hover the `shipping_ops` catalog.
-2. Click **Manage associations**.
-3. Check `presto-01` and click **Save and restart engine**. Wait until the Presto outline is solid.
-
 Add the topic definition (Presto table JSON, not Avro):
 
 1. Click the Kafka data source in **Infrastructure manager**.
 2. Click **Add topics**.
-3. Upload [`kafka-topics/fuel_surcharge.json`](kafka-topics/fuel_surcharge.json) (underscore, not hyphen).
+3. Upload [`kafka-topics/fuel_surcharge.json`](kafka-topics/fuel_surcharge.json).
 4. Click **Save**.
 
 Associate the new catalog with Presto:
@@ -268,7 +260,7 @@ Associate the new catalog with Presto:
 2. Check `presto-01`.
 3. Click **Save and restart engine**. Wait until the outline is solid.
 
-Check federation in **Query workspace** (engine `presto-01`). Data Manager will not show a `default` schema or sample grid for Kafka. `SHOW SCHEMAS FROM shipping_ops` returns 0 rows in this watsonx.data build — that is expected. Query the table:
+In **Query workspace** (engine `presto-01`), Kafka has no Data Manager sample. Query the table:
 
 ```sql
 SELECT region, fuel_surcharge, updated_at

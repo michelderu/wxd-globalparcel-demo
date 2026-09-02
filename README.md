@@ -2,7 +2,7 @@
 
 **Capture the business. Run the business.**
 
-Shaun Clowes introduced StreamHouse as a simple idea: continuously **capture**, **transform**, and **query** real-time data so the company is looking at a **current view of the business**.
+The StreamHouse has been introduced as a simple idea: continuously **capture**, **transform**, and **query** real-time data so the company is looking at a **current view of the business**.
 
 This workshop makes that idea concrete through a realistic Global Parcel scenario — and through the **IBM watsonx.data** vision: one platform, **fit-for-purpose engines**. You still build it yourself.
 

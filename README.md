@@ -16,7 +16,7 @@ flowchart LR
         F --> K
     end
     subgraph transform [Transform]
-        T[Shift-left job]
+        T[Shift-left job (Flink)]
         K --> T
     end
     subgraph ibm [IBM engines]

@@ -1,4 +1,4 @@
-# Global Parcel Hybrid Lakehouse Demo
+# 02 — Query the lakehouse 🧊
 
 Part of the **[StreamHouse workshop](../README.md)** — the **query** chapter: **IBM watsonx.data** (Iceberg, Presto, Kafka federation) on the parcels you already captured.
 

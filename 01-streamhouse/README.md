@@ -1,4 +1,4 @@
-# 01 — Capture the business
+# 01 — Capture the business 🚚
 
 **Capture the business. Run the business.**
 

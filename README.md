@@ -41,10 +41,10 @@ Work **in order**. One capture, one transform, then query, operate, and ask — 
 
 | Chapter | Folder | What you do |
 | --- | --- | --- |
-| **01 Capture & run** | [`01-streamhouse`](01-streamhouse/README.md) | Put Global Parcel on Kafka, shift-left into Cassandra, OpenSearch, and Iceberg, open the control tower on `:8088` |
-| **02 Query** | [`02-lakehouse`](02-lakehouse/README.md) | watsonx.data Presto over that Iceberg, joined with live Kafka `fuel.surcharge` |
-| **03 Operate** | [`03-realtime-operations`](03-realtime-operations/README.md) | Ledger vs customer search: audit UI, tracking UI, OpenSearch Dashboards on `:8081` |
-| **04 Ask** | [`04-accelerate-ai`](04-accelerate-ai/README.md) | watsonx Orchestrate + Langflow on the same ledger and customer API |
+| **01 Capture** 🚚 | [`01-streamhouse`](01-streamhouse/README.md) | Put Global Parcel on Kafka, shift-left into Cassandra, OpenSearch, and Iceberg, open the control tower on `:8088` |
+| **02 Query** 🧊 | [`02-lakehouse`](02-lakehouse/README.md) | watsonx.data Presto over that Iceberg, joined with live Kafka `fuel.surcharge` |
+| **03 Operate** 📍 | [`03-realtime-operations`](03-realtime-operations/README.md) | Ledger vs customer search: audit UI, tracking UI, OpenSearch Dashboards on `:8081` |
+| **04 Ask** 💬 | [`04-accelerate-ai`](04-accelerate-ai/README.md) | watsonx Orchestrate + Langflow on the same ledger and customer API |
 
 ---
 
@@ -93,21 +93,7 @@ python -m venv .venv
 source .venv/bin/activate
 ```
 
-Python packages are installed when you start chapter 01. Chapter 04 adds the Orchestrate ADK later.
-
----
-
-## Start here
-
-```bash
-source .venv/bin/activate
-cd 01-streamhouse
-export KAFKA_HOST_IP=$(hostname -I | awk '{print $1}')
-docker compose up -d
-PYTHONPATH=. python -m capture.produce
-```
-
-Capture → transform → tableflow → control tower: [`01-streamhouse/README.md`](01-streamhouse/README.md). Then continue in `02` → `03` → `04`.
+Then open **[`01-streamhouse/README.md`](01-streamhouse/README.md)** — packages, Compose, capture, transform, tableflow, tower. Then `02` → `03` → `04`.
 
 ---
 

@@ -1,4 +1,4 @@
-# Global Parcel - 03 Realtime operations
+# 03 — Operate the business 📍
 
 <p align="center">
   <img src="assets/global-parcel-realtime-operations.png" alt="Global Parcel Demo - Realtime Operations" width="100%">
@@ -52,7 +52,7 @@ flowchart LR
 
 ## Hands-on
 
-### 1. Confirm the engines
+### 1. Confirm the engines 🔎
 
 From **`01-streamhouse/`** (Compose still up):
 
@@ -63,7 +63,7 @@ curl -s "http://localhost:9200/parcel-events-live/_count"
 
 You should see counts growing while `transform.shift_left` runs.
 
-### 2. Run the ops apps
+### 2. Run the ops apps 🖥️
 
 From **this directory**:
 
@@ -80,13 +80,13 @@ One process on `:8081` serves both UIs and their JSON. Details: [`apps/README.md
 
 The control tower stays on [http://localhost:8088/tower/](http://localhost:8088/tower/).
 
-### 3. Customer tracking (OpenSearch)
+### 3. Customer tracking (OpenSearch) 📦
 
 Open [http://localhost:8081/customer-ui/](http://localhost:8081/customer-ui/) and track `PCL-LIVE-000001`.
 
 This view is what the customer sees. It does **not** expose driver notes — those stay on the ledger for the agent chapter.
 
-### 4. Audit / reconciliation (Cassandra)
+### 4. Audit / reconciliation (Cassandra) ⚖️
 
 Open [http://localhost:8081/audit-ui/](http://localhost:8081/audit-ui/).
 
@@ -107,7 +107,7 @@ WHERE parcel_id = 'PCL-000001';
 EOF
 ```
 
-### 5. OpenSearch Dashboards
+### 5. OpenSearch Dashboards 📊
 
 1. Open [http://localhost:5601](http://localhost:5601).
 2. **Management → Stack Management → Saved Objects → Import**.

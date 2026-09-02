@@ -16,13 +16,13 @@ Python tools that read the **authoritative parcel ledger** written by `transform
 
 | Flow | Purpose |
 | --- | --- |
-| [langflow/parcel_opensearch_customer.json](langflow/parcel_openSearch_customer.json) | Customer-facing OpenSearch view via `GET /api/customer/{parcel_id}` on `:8088` |
+| [langflow/parcel_opensearch_customer.json](langflow/parcel_openSearch_customer.json) | Customer-facing OpenSearch view via `GET /api/customer/{parcel_id}` on `:8081` |
 
 Reconciliation uses Cassandra Python tools on the agent, not Langflow.
 
 ## Prerequisites
 
-Capture still up (Cassandra `:9042`, apps `:8088`). wxO Developer Edition running (`orchestrate env activate local`).
+Capture still up (Cassandra `:9042`, ops API `:8081`). wxO Developer Edition running (`orchestrate env activate local`).
 
 ## Import into wxO
 

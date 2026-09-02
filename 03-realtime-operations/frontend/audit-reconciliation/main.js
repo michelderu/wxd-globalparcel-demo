@@ -54,7 +54,7 @@ function renderTimeline(parcelId, rows) {
   tbody.innerHTML = "";
 
   if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="6">No events found for ${parcelId}. Verify Cassandra partition key.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7">No events found for ${parcelId}. Verify Cassandra partition key.</td></tr>`;
     return;
   }
 
@@ -66,7 +66,8 @@ function renderTimeline(parcelId, rows) {
       row.hub_code || "-",
       row.region || "-",
       formatGeo(row.geo_position),
-      row.exception_code || "-"
+      row.exception_code || "-",
+      row.delivery_note || "-"
     ];
     cols.forEach((col) => {
       const td = document.createElement("td");

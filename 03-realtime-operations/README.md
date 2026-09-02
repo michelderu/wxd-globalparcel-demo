@@ -6,7 +6,9 @@
 
 Part of the **[StreamHouse workshop](../README.md)** — the **operate** chapter: **Cassandra (DataStax HCD)** as the parcel ledger and **OpenSearch** as customer tracking search.
 
-The transform already lands every scan in both engines. This chapter is the product story and the UIs on `:8088` — audit on the ledger, tracking on search.
+The transform in chapter 01 already lands every scan in both engines. This chapter **runs** those products: customer tracking on search, audit on the ledger.
+
+Work from **this directory**. Keep `PYTHONPATH=.`. Use the workshop venv from the parent folder (`source ../.venv/bin/activate`) — FastAPI and the engine clients were installed in chapter 01. Leave chapter 01 Compose (Cassandra, OpenSearch) and the shift-left job running.
 
 - **DataStax HCD (based on Apache Cassandra)** as the **trusted transactional backend ledger**: always-on, unbreakable-by-design architecture, and linearly scalable high-throughput writes.
 - **OpenSearch** as the **customer-facing tracking search frontend**: low-latency lookup for parcel status, timeline retrieval, and support/operations drill-down.
@@ -42,24 +44,51 @@ flowchart LR
     Kafka[Kafka] --> T[shift_left]
     T --> B[Cassandra<br/>Trusted transactional ledger]
     T --> C[OpenSearch<br/>Customer-facing search]
-    C --> E[Customer Tracking UI :8088]
-    B --> G[Audit/Reconciliation UI :8088]
+    C --> E[Customer Tracking UI :8081]
+    B --> G[Audit/Reconciliation UI :8081]
 ```
 
 ---
 
 ## Hands-on
 
-From **`01-streamhouse/`**, confirm the engines:
+### 1. Confirm the engines
+
+From **`01-streamhouse/`** (Compose still up):
 
 ```bash
 docker compose exec -T cassandra cqlsh -e "SELECT COUNT(*) FROM globalparcel_ops.parcel_events_by_parcel;"
 curl -s "http://localhost:9200/parcel-events-live/_count"
 ```
 
-### Audit / reconciliation (Cassandra)
+You should see counts growing while `transform.shift_left` runs.
 
-Open [http://localhost:8088/audit-ui/](http://localhost:8088/audit-ui/).
+### 2. Run the ops apps
+
+From **this directory**:
+
+```bash
+PYTHONPATH=. uvicorn apps.api:app --host 0.0.0.0 --port 8081
+```
+
+One process on `:8081` serves both UIs and their JSON. Details: [`apps/README.md`](apps/README.md).
+
+| You want to show | Open | Reads |
+| --- | --- | --- |
+| Customer “where is my parcel?” | http://localhost:8081/customer-ui/ | **OpenSearch** |
+| Dispute / source of truth | http://localhost:8081/audit-ui/ | **Cassandra** |
+
+The control tower stays on [http://localhost:8088/tower/](http://localhost:8088/tower/).
+
+### 3. Customer tracking (OpenSearch)
+
+Open [http://localhost:8081/customer-ui/](http://localhost:8081/customer-ui/) and track `PCL-LIVE-000001`.
+
+This view is what the customer sees. It does **not** expose driver notes — those stay on the ledger for the agent chapter.
+
+### 4. Audit / reconciliation (Cassandra)
+
+Open [http://localhost:8081/audit-ui/](http://localhost:8081/audit-ui/).
 
 This dashboard is the **Cassandra source-of-truth read path** for dispute workflows.
 
@@ -78,13 +107,7 @@ WHERE parcel_id = 'PCL-000001';
 EOF
 ```
 
-### Customer tracking (OpenSearch)
-
-Open [http://localhost:8088/customer-ui/](http://localhost:8088/customer-ui/) and track `PCL-LIVE-000001`.
-
-This view is what the customer sees. It does **not** expose driver notes — those stay on the ledger for the agent chapter.
-
-### OpenSearch Dashboards
+### 5. OpenSearch Dashboards
 
 1. Open [http://localhost:5601](http://localhost:5601).
 2. **Management → Stack Management → Saved Objects → Import**.

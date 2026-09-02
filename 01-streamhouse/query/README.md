@@ -13,4 +13,4 @@ Try this progression:
 
 History (`PCL-000001`) and live (`PCL-LIVE-000001`) are not federated from two ad-hoc copies. They are one continuously captured business.
 
-The **IBM** version of this SQL runs in **watsonx.data** Presto over Iceberg plus the federated Kafka table `shipping_ops.default.fuel_surcharge` — [`../../02-data-federation/README.md`](../../02-data-federation/README.md).
+The **IBM** version of this SQL runs in **watsonx.data** Presto over Iceberg plus the federated Kafka table `shipping_ops.default.fuel_surcharge` — [`../../02-lakehouse/README.md`](../../02-lakehouse/README.md).

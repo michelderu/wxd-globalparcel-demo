@@ -41,24 +41,13 @@ flowchart TB
 ---
 
 ## Working directory
-**Assume your shell working directory is `02-data-federation/`.** Capture and tableflow should already have written `01-streamhouse/data/warehouse/`.
+**Assume your shell working directory is `02-lakehouse/`.** Capture and tableflow should already have written `01-streamhouse/data/warehouse/`.
 
 ```bash
-cd 02-data-federation
+cd 02-lakehouse
 ```
 
-## Python dependencies
-
-Here we build upon the [installation prerequisites](../README.md#prerequisites).
-Assume the repository-root virtual environment is already active (`../.venv`).
-
-Install the required Python dependencies for this chapter using the `requirements.txt`:
-
-```bash
-pip install -r requirements.txt
-```
-
-This installs `pandas` and `pyarrow`, used by the warehouse export script.
+The chapter 01 venv already has **pyarrow** for the warehouse export. No extra `pip install` here.
 
 ---
 
@@ -192,7 +181,7 @@ The capture job wrote parcel scans to Kafka and materialized them under `01-stre
 
 ### Export StreamHouse parcel events (like TableFlow in the cloud)
 
-From `02-data-federation/`:
+From `02-lakehouse/`:
 
 ```bash
 PYTHONPATH=../01-streamhouse python scripts/export_streamhouse_history.py
@@ -206,7 +195,7 @@ This writes **`shipping_history.csv`** here. If Tableflow has not produced wareh
 2. Navigate to **Infrastructure manager → Add component → IBM Spark** (`Next`).
 3. Display name (for example `spark-01`); associate catalog **`iceberg_bucket`**.
 4. Navigate to **Data manager → `iceberg_data` → ⋮ → Create schema** named **`shipping_backend`**.
-5. Under **`shipping_backend` → ⋮ → Create table from file** and select **`shipping_history.csv`** which you just generated in **`02-data-federation/`**.
+5. Under **`shipping_backend` → ⋮ → Create table from file** and select **`shipping_history.csv`** which you just generated in **`02-lakehouse/`**.
 6. Target table **`shipping_history`**, select your just created Spark engine, then click **Done**.
 7. On the **Ingestion history** tab click the refresh button to check the progress.
 

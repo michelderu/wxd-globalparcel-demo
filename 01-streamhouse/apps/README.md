@@ -1,18 +1,15 @@
-# Run the business
+# Control tower
 
-IBM engines plus the StreamHouse current view.
+One FastAPI process on `:8088` serves the **current view of the business**. `app.mount(...)` in [`api.py`](api.py) maps `/tower/` to `apps/frontend/control-tower` (`index.html`, JS, CSS). The snapshot JSON comes from warehouse Parquet, not Kafka.
 
-| App | URL | Engine |
-| --- | --- | --- |
-| Control tower | http://localhost:8088/tower/ | Lakehouse current view |
-| Customer tracking | http://localhost:8088/customer-ui/ | **OpenSearch** |
-| Audit / reconciliation | http://localhost:8088/audit-ui/ | **Cassandra** |
-| watsonx Orchestrate | http://localhost:3000/chat-lite | Ledger tools + Langflow customer API |
+| URL | Reads |
+| --- | --- |
+| http://localhost:8088/tower/ | Lakehouse current view (`/api/snapshot`) |
+
+`/` redirects to `/tower/`.
 
 ```bash
 PYTHONPATH=. uvicorn apps.api:app --host 0.0.0.0 --port 8088
 ```
 
-The API does not read Kafka. Capture and transform fill Cassandra, OpenSearch, and Iceberg; apps **run on those products**.
-
-Full agent lab: [`../../04-accelerate-ai/README.md`](../../04-accelerate-ai/README.md).
+Customer tracking and audit live in chapter 03 ([`../../03-realtime-operations/README.md`](../../03-realtime-operations/README.md)). Ask the business is watsonx Orchestrate on `:3000` ([`../../04-accelerate-ai/README.md`](../../04-accelerate-ai/README.md)).

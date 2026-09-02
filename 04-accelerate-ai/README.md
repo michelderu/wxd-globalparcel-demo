@@ -33,7 +33,7 @@ Same parcels, now with an agent: ADK locally, Langflow as an MCP tool, chat on t
 | **Docker** | By default Ochestrate uses Qemu and Lima for virtualization. You can bypass it to use your own preference, or when on Linux |
 | **16 GB RAM** | 32 GB recommended with Langflow |
 | **Credentials** | myIBM entitlement + watsonx.ai API key + deployment space ID, **or** a watsonx Orchestrate SaaS instance |
-| **Capture still up** | Cassandra `:9042`, OpenSearch `:9200`, API on `:8088` — see **[delivery driver notes](../03-realtime-operations/README.md#delivery-driver-notes)** |
+| **Capture still up** | Cassandra `:9042`, OpenSearch `:9200`, ops API on `:8081` — see **[delivery driver notes](../03-realtime-operations/README.md#delivery-driver-notes)** |
 
 On **Linux**, the ADK defaults to a **Lima + QEMU** VM. This lab uses your **native Docker Engine** instead — no QEMU.
 
@@ -258,9 +258,9 @@ python scripts/chat_demo.py --interactive
 
 **Split responsibilities:** Langflow reads the **OpenSearch customer API** (what `/customer-ui/` shows). **Cassandra ledger tools** (step 6) handle reconciliation.
 
-Host/API URLs and Docker bridge settings: **[delivery driver notes](../03-realtime-operations/README.md#delivery-driver-notes-session-04)** (use `172.17.0.1:8088` for Langflow on Linux).
+Host/API URLs and Docker bridge settings: **[delivery driver notes](../03-realtime-operations/README.md#delivery-driver-notes)** (use `172.17.0.1:8081` for Langflow on Linux).
 
-With the StreamHouse API running from `01-streamhouse/` (`PYTHONPATH=. uvicorn apps.api:app … --port 8088`) and OpenSearch indexed:
+With the ops API running from `03-realtime-operations/` (`PYTHONPATH=. uvicorn apps.api:app … --port 8081`) and OpenSearch indexed:
 
 1. Import `tools/langflow/parcel_opensearch_customer.json` at **http://localhost:7861** (optional: test playground with `PCL-LIVE-000001`)
 2. Click "Share → MCP Server" and ensure "PARCEL_OPENSEARCH_CUSTOMER" is set under `Flows/Tools` (optional: click JSON to understand how to call the MCP server)
@@ -332,7 +332,7 @@ This session mixes **open, portable interfaces** with **ADK- and vendor-specific
 | **wxO REST API** | [OpenAPI 3.0](https://developer.watson-orchestrate.ibm.com/apis/auth/login-for-token) | Yes | Spec at `http://localhost:4321/api/openapi.json`; used by `chat_demo.py` |
 | **Chat completions** | `POST /api/v1/orchestrate/{agent_id}/chat/completions` | De facto (OpenAI-style) | Common pattern for agent chat; not a formal ISO standard |
 | **MCP toolkits** (step 8) | [Model Context Protocol](https://modelcontextprotocol.io/) | Yes | Langflow → wxO via SSE; good when you want a portable agent–tool wire protocol |
-| **OpenAPI tools** | `orchestrate tools import -k openapi` | Yes | Wrap existing HTTP APIs (e.g. StreamHouse `apps.api` on `:8088`) without custom Python |
+| **OpenAPI tools** | `orchestrate tools import -k openapi` | Yes | Wrap existing HTTP APIs (e.g. ops `apps.api` on `:8081`) without custom Python |
 | **Cassandra ledger tools** (step 6) | `orchestrate tools import -k python` + `@tool` | **No** (ADK format) | Data access uses standard **CQL** / Cassandra native protocol; tool definition is wxO-specific |
 | **Langflow flow import** | `orchestrate tools import -k langflow` + exported JSON | **No** | Langflow-specific export; fine for quick demos |
 | **Agents** | `agents/*.yml` (`spec_version: v1`) | **No** | wxO ADK agent definition |
@@ -353,7 +353,7 @@ flowchart TB
         AGY["Agent YAML"]
     end
 
-    Host["Cassandra + apps.api :8088"] --> CQL
+    Host["Cassandra + ops API :8081"] --> CQL
     Host --> OAPI
     PY --> CQL
     LFJ --> MCP
@@ -372,7 +372,7 @@ flowchart TB
 | Goal | Prefer |
 | --- | --- |
 | Read the Cassandra ledger from a workshop agent | Python `@tool` (current `tools/cassandra_ledger/`) |
-| Expose an existing REST API to agents | **OpenAPI** import against StreamHouse `apps.api` (`:8088`) |
+| Expose an existing REST API to agents | **OpenAPI** import against the ops API (`:8081`) |
 | Connect Langflow with minimal lock-in | **MCP** (`orchestrate toolkits add --kind mcp`) |
 | Fastest Langflow demo | Langflow JSON (`-k langflow`) |
 
@@ -399,7 +399,7 @@ orchestrate server reset -e .env
 
 ## Next steps
 
-- Add StreamHouse HTTP endpoints as **OpenAPI tools** (see [Open standards and tool formats](#open-standards-and-tool-formats)) — e.g. `/api/audit/{parcel_id}` and `/api/customer/{parcel_id}` from `apps.api`.
+- Add ops HTTP endpoints as **OpenAPI tools** (see [Open standards and tool formats](#open-standards-and-tool-formats)) — e.g. `/api/audit/{parcel_id}` and `/api/customer/{parcel_id}` from chapter 03 `apps.api`.
 - Deploy agents to **watsonx Orchestrate SaaS** with `orchestrate env add` and `orchestrate agents import`.
 - Explore observability: `orchestrate server start -e .env --with-langflow --with-langfuse`.
 

@@ -41,9 +41,9 @@ Work **in order**. One capture, one transform, then query, operate, and ask — 
 
 | Chapter | Folder | What you do |
 | --- | --- | --- |
-| **01 Capture & run** | [`01-streamhouse`](01-streamhouse/README.md) | Put Global Parcel on Kafka, shift-left into Cassandra, OpenSearch, and Iceberg, open the apps on `:8088` |
-| **02 Query** | [`02-data-federation`](02-data-federation/README.md) | watsonx.data Presto over that Iceberg, joined with live Kafka `fuel.surcharge` |
-| **03 Operate** | [`03-realtime-operations`](03-realtime-operations/README.md) | Ledger vs customer search: audit UI, tracking UI, OpenSearch Dashboards |
+| **01 Capture & run** | [`01-streamhouse`](01-streamhouse/README.md) | Put Global Parcel on Kafka, shift-left into Cassandra, OpenSearch, and Iceberg, open the control tower on `:8088` |
+| **02 Query** | [`02-lakehouse`](02-lakehouse/README.md) | watsonx.data Presto over that Iceberg, joined with live Kafka `fuel.surcharge` |
+| **03 Operate** | [`03-realtime-operations`](03-realtime-operations/README.md) | Ledger vs customer search: audit UI, tracking UI, OpenSearch Dashboards on `:8081` |
 | **04 Ask** | [`04-accelerate-ai`](04-accelerate-ai/README.md) | watsonx Orchestrate + Langflow on the same ledger and customer API |
 
 ---
@@ -70,8 +70,8 @@ Confluent Cloud **Tableflow** is the managed Kafka→Iceberg path watsonx.data f
 | Surface | URL | Reads |
 | --- | --- | --- |
 | Control tower | http://localhost:8088/tower/ | Current view (lakehouse materialization) |
-| Customer tracking | http://localhost:8088/customer-ui/ | **OpenSearch** |
-| Audit / reconciliation | http://localhost:8088/audit-ui/ | **Cassandra** |
+| Customer tracking | http://localhost:8081/customer-ui/ | **OpenSearch** |
+| Audit / reconciliation | http://localhost:8081/audit-ui/ | **Cassandra** |
 | Ask the business | http://localhost:3000/chat-lite | **watsonx Orchestrate** |
 | OpenSearch Dashboards | http://localhost:5601 | `parcel-events-live` |
 | Kafka UI | http://localhost:8080 | Capture topics (`parcel.events`, `fuel.surcharge`) |
@@ -91,9 +91,9 @@ Suggested parcels: `PCL-LIVE-000001`, `PCL-000001`.
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install -U pip
-pip install -r requirements.txt
 ```
+
+Python packages are installed when you start chapter 01. Chapter 04 adds the Orchestrate ADK later.
 
 ---
 
@@ -107,7 +107,7 @@ docker compose up -d
 PYTHONPATH=. python -m capture.produce
 ```
 
-Capture → transform → tableflow → apps: [`01-streamhouse/README.md`](01-streamhouse/README.md). Then continue in `02` → `03` → `04`.
+Capture → transform → tableflow → control tower: [`01-streamhouse/README.md`](01-streamhouse/README.md). Then continue in `02` → `03` → `04`.
 
 ---
 

@@ -1,36 +1,29 @@
-# StreamHouse warehouse (Iceberg catalog + parquet)
+# Chapter 01 warehouse (Parquet under 01-streamhouse/data/)
 data/
 
-# Virtual environments (repository root only for this workspace)
+# Virtual environment (repo root)
 .venv/
 venv/
 
-# Python bytecode
+# Python
 __pycache__/
 *.py[cod]
 *.pyo
 
-# Stray generator output if cwd was repository root by mistake
-fuel_surcharge.csv
+# Chapter 02 Spark ingest export
 shipping_history.csv
-*.parquet
 
 # Editor / OS
 .DS_Store
 .idea/
-.env
-**/.env
 
-# Logs and runtime output
+# Chapter 04 Orchestrate credentials (keep .env.example)
+.env
+
+# Logs (chapter 02 nohup port-forwards)
 *.log
 nohup.out
 
-# Local service artifacts
-presto/
+# watsonx.data Developer Edition download / extract
 watsonx.data-developer-edition-installer/
-
-# Producer data
-generated/
-
-# Watsonx Data
 watsonx.data-developer-edition-installer.tar

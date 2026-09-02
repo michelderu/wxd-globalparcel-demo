@@ -17,4 +17,4 @@ Warehouse files land in `data/warehouse/` as Parquet snapshots of those streams.
 PYTHONPATH=. python -m tableflow.materialize
 ```
 
-**IBM query plane:** after this laptop materialization, load the same business into **watsonx.data** Iceberg and federate live Kafka `fuel.surcharge`. See [`../../02-data-federation/README.md`](../../02-data-federation/README.md).
+**IBM query plane:** after this laptop materialization, load the same business into **watsonx.data** Iceberg and federate live Kafka `fuel.surcharge`. See [`../../02-lakehouse/README.md`](../../02-lakehouse/README.md).

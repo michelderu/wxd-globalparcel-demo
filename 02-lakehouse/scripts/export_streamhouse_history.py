@@ -4,7 +4,7 @@ Primary path: read Tableflow Parquet from data/warehouse/.
 Fallback: synthesize the same schema from shared.domain hubs when the warehouse
 is empty (session 01 capture has not run yet).
 
-Run from `02-data-federation/` (session 01 warehouse under `01-streamhouse/data/`):
+Run from `02-lakehouse/` (chapter 01 warehouse under `01-streamhouse/data/`):
 
     PYTHONPATH=../01-streamhouse python scripts/export_streamhouse_history.py
 """

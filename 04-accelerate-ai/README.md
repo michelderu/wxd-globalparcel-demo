@@ -19,7 +19,7 @@ Same parcels, now with an agent: ADK locally, Langflow as an MCP tool, chat on t
 ## What you will do
 
 1. Install the **ADK** (`ibm-watsonx-orchestrate`) in the repo Python environment.
-2. Start **Developer Edition** with Langflow: `orchestrate server start -e .env --with-langflow`.
+2. Start **Developer Edition** with Langflow: `./scripts/start_wxo.sh`.
 3. Open the **chat UI** and **Langflow editor**.
 4. Import a Langflow flow as a wxO tool and chat with an agent.
 
@@ -68,6 +68,7 @@ The ADK **defaults to Lima + QEMU on Linux**. You can also witch to user-managed
 
 ```bash
 pip install -r requirements.txt
+python scripts/patch_langflow_ssrf.py
 orchestrate settings docker host --user-managed
 ```
 
@@ -75,8 +76,11 @@ orchestrate settings docker host --user-managed
 
 ```bash
 pip install -r requirements.txt
+python scripts/patch_langflow_ssrf.py
 orchestrate --version
 ```
+> [!TIP]
+> `patch_langflow_ssrf.py` copies the installed ADK compose into `.adk/docker-compose.yml` and adds `LANGFLOW_SSRF_PROTECTION_ENABLED`. Re-run it (or use `./scripts/start_wxo.sh`) after any ADK upgrade — a new install restores stock compose, which does not pass extra `LANGFLOW_*` keys into the Langflow container.
 
 ### 2) Configure credentials
 
@@ -109,12 +113,12 @@ Embedded service credentials in `.env.example` include a **workshop default** fo
 ### 3) Start Developer Edition with Langflow
 
 ```bash
-orchestrate server start -e .env --with-langflow
+./scripts/start_wxo.sh
 ```
 
 First start can take several minutes. When ready you should see:
 
-- API: http://localhost:4321 (OpenAPI docs: `/docs`, spec: `/api/openapi.json`)
+- API: http://localhost:4321 (OpenAPI docs: `http://localhost:4321/docs`, spec: `http://localhost:4321/api/openapi.json`)
 - Langflow: http://localhost:7861
 
 ```bash
@@ -262,11 +266,11 @@ Host/API URLs and Docker bridge settings: **[delivery driver notes](../03-realti
 
 With the ops API running from `03-realtime-operations/` (`PYTHONPATH=. uvicorn apps.api:app … --port 8081`) and OpenSearch indexed:
 
-1. Import `tools/langflow/parcel_opensearch_customer.json` at **http://localhost:7861** (optional: test playground with `PCL-LIVE-000001`)
-2. Click "Share → MCP Server" and ensure "PARCEL_OPENSEARCH_CUSTOMER" is set under `Flows/Tools` (optional: click JSON to understand how to call the MCP server)
-3. Make note of the URL inside the `args` sections, as you'll need it below
+1. Import `tools/langflow/parcel_opensearch_customer.json` at [http://localhost:7861](http://localhost:7861) (optional: test playground with `PCL-LIVE-000001`)
+2. Click "Share → MCP Server" and ensure "PARCEL_OPENSEARCH_CUSTOMER" is set under `Flows/Tools`.
+3. Click JSON to understand how to call the MCP server. Make note of the `projectid` inside the `args` sections, as you'll need it below
 
-> [!INFO]
+> [!TIP]
 > Langflow playground calls `GET /api/customer/{parcel_id}` — no LLM required
 
 Now we're ready to add this MCP tool to Orchestrate.
@@ -278,7 +282,7 @@ orchestrate toolkits add \
   --kind mcp \
   --name langflow_parcel_mcp \
   --description "Langflow MCP for Global Parcel" \
-  --command "uvx mcp-proxy http://host.docker.internal:7861/api/v1/mcp/project/38a0dc38-8574-423f-b902-c9b5d6323eba/sse" \
+  --command "uvx --with mcp==1.29.0 mcp-proxy http://host.docker.internal:7861/api/v1/mcp/project/<PROJECTID-FROM-LANGFLOW>/sse" \
   --tools "*"
 ```
 
@@ -401,7 +405,7 @@ orchestrate server reset -e .env
 
 - Add ops HTTP endpoints as **OpenAPI tools** (see [Open standards and tool formats](#open-standards-and-tool-formats)) — e.g. `/api/audit/{parcel_id}` and `/api/customer/{parcel_id}` from chapter 03 `apps.api`.
 - Deploy agents to **watsonx Orchestrate SaaS** with `orchestrate env add` and `orchestrate agents import`.
-- Explore observability: `orchestrate server start -e .env --with-langflow --with-langfuse`.
+- Explore observability: `./scripts/start_wxo.sh --with-langfuse`.
 
 ---
 

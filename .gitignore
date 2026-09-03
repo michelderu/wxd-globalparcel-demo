@@ -19,6 +19,8 @@ shipping_history.csv
 
 # Chapter 04 Orchestrate credentials (keep .env.example)
 .env
+# Generated ADK compose (scripts/patch_langflow_ssrf.py)
+04-accelerate-ai/.adk/
 
 # Logs (chapter 02 nohup port-forwards)
 *.log

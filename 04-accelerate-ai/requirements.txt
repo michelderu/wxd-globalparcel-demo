@@ -1,6 +1,9 @@
 # Session 04 — watsonx Orchestrate ADK + Langflow
 # Install from 04-accelerate-ai/ with the repo-root venv active:
 #   pip install -r requirements.txt
+#   python scripts/patch_langflow_ssrf.py
+# After install or any ADK upgrade, start with ./scripts/start_wxo.sh
+# (rebuilds .adk/docker-compose.yml from the newly installed compose-lite.yml).
 
 ibm-watsonx-orchestrate>=2.10.0
 requests>=2.31.0

@@ -97,22 +97,16 @@ This dashboard is the **Cassandra source-of-truth read path** for dispute workfl
 3. Use the map + timeline; look for `WX_DELAY` and **delivery driver notes**.
 4. Close the dispute using Cassandra as the authoritative evidence trail.
 
-```bash
-# from 01-streamhouse/
-docker compose exec -T cassandra cqlsh <<'EOF'
-USE globalparcel_ops;
-SELECT parcel_id, event_ts, status, hub_code, region, delivery_note
-FROM parcel_events_by_parcel
-WHERE parcel_id = 'PCL-000001';
-EOF
-```
-
 ### 5. OpenSearch Dashboards 📊
 
-1. Open [http://localhost:5601](http://localhost:5601).
-2. **Management → Stack Management → Saved Objects → Import**.
-3. Import `opensearch-dashboards/globalparcel-ops-dashboard.ndjson`.
-4. Open **Global Parcel - Realtime Tracking Dashboard**.
+Dashboards is in chapter 01 Compose (`opensearch-dashboards` on `:5601`). Security is off — no login.
+
+1. Open [http://localhost:5601](http://localhost:5601). If you get the welcome screen, choose **Explore on my own**.
+2. Left menu: **Management → Dashboards Management → Saved objects**.
+3. **Import** → choose [`opensearch-dashboards/globalparcel-ops-dashboard.ndjson`](opensearch-dashboards/globalparcel-ops-dashboard.ndjson) from this folder → **Import**.
+4. Left menu: **Dashboard** → **Global Parcel - Realtime Tracking Dashboard**.
+
+That saved object is an index pattern plus a saved search on `parcel-events-live` — the same index the customer UI reads.
 
 ---
 
@@ -131,5 +125,15 @@ Example notes:
 - `Sorted into outbound lane at FRA-01; cage GP-412.`
 - `Weather delay — ramp closed for de-icing; customer ETA may slip.`
 - `Delivered at Chicago; signed by recipient.`
+
+```bash
+# from 01-streamhouse/
+docker compose exec -T cassandra cqlsh <<'EOF'
+USE globalparcel_ops;
+SELECT parcel_id, event_ts, status, hub_code, region, delivery_note
+FROM parcel_events_by_parcel
+WHERE parcel_id = 'PCL-000001';
+EOF
+```
 
 Continue with [`../04-accelerate-ai/README.md`](../04-accelerate-ai/README.md).

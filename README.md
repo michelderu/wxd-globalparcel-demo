@@ -1,5 +1,7 @@
 # Global Parcel StreamHouse
 
+![StreamHouse](./assets/streamhouse.jpg)
+
 **Capture the business. Run the business.**
 
 The StreamHouse has been introduced as a simple idea: continuously **capture**, **transform**, and **query** real-time data so the company is looking at a **current view of the business**.
@@ -74,7 +76,7 @@ Confluent Cloud **Tableflow** is the managed Kafka→Iceberg path watsonx.data f
 | Audit / reconciliation | http://localhost:8081/audit-ui/ | **Cassandra** |
 | Ask the business | http://localhost:3000/chat-lite | **watsonx Orchestrate** |
 | OpenSearch Dashboards | http://localhost:5601 | `parcel-events-live` |
-| Kafka UI | http://localhost:8080 | Capture topics (`parcel.events`, `fuel.surcharge`) |
+| Kafka UI | http://localhost:8085 | Capture topics (`parcel.events`, `fuel.surcharge`) |
 | watsonx.data console | https://localhost:6443 | Iceberg + federated Kafka |
 
 Suggested parcels: `PCL-LIVE-000001`, `PCL-000001`.

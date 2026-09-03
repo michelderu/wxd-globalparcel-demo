@@ -1,9 +1,11 @@
 const map = L.map("routeMap", { zoomControl: true });
-L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-  attribution: "&copy; OpenStreetMap contributors &copy; CARTO"
+L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  maxZoom: 19,
+  attribution: "&copy; OpenStreetMap"
 }).addTo(map);
 const routeLayer = L.layerGroup().addTo(map);
 map.setView([20, 0], 2);
+requestAnimationFrame(() => map.invalidateSize());
 
 function formatGeo(geo) {
   if (!geo || geo.latitude == null || geo.longitude == null) {
@@ -26,12 +28,13 @@ function renderMap(rows) {
 
   if (!points.length) {
     map.setView([20, 0], 2);
+    map.invalidateSize();
     return;
   }
 
   const chronological = [...points].reverse();
   const latLngs = chronological.map((p) => [p.lat, p.lon]);
-  L.polyline(latLngs, { color: "#60a5fa", weight: 3, opacity: 0.8 }).addTo(routeLayer);
+  L.polyline(latLngs, { color: "#2563eb", weight: 4, opacity: 0.9 }).addTo(routeLayer);
 
   chronological.forEach((p, idx) => {
     const isLatest = idx === chronological.length - 1;
@@ -47,6 +50,7 @@ function renderMap(rows) {
   });
 
   map.fitBounds(latLngs, { padding: [24, 24], maxZoom: 6 });
+  map.invalidateSize();
 }
 
 function renderTimeline(parcelId, rows) {

@@ -333,7 +333,7 @@ Examples:
     if not client.health_check():
         print(f"❌ Error: Cannot connect to watsonx Orchestrate at {args.url}")
         print("\nTroubleshooting:")
-        print("1. Start server: orchestrate server start -e .env --with-langflow")
+        print("1. Start server: ./scripts/start_wxo.sh")
         print("2. Activate env: orchestrate env activate local")
         print("3. Check API: curl -s http://localhost:4321/docs -o /dev/null -w '%{http_code}\\n'")
         sys.exit(1)

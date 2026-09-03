@@ -22,6 +22,13 @@ docker compose up -d
 docker compose ps
 ```
 
+**Engines started in this chapter:**
+
+- **Apache Kafka** (message bus; powered by Docker Compose)
+- **Apache Cassandra** (authoritative parcel ledger)
+- **OpenSearch** (customer tracking & search)
+- **Kafka UI** (web interface at [http://localhost:8085](http://localhost:8085))
+
 Wait until **Cassandra** is `healthy` (first boot 1–2 minutes), **OpenSearch** answers on HTTP `:9200`, and **Kafka** is `healthy` on `:9092`:
 
 ```bash
@@ -44,7 +51,7 @@ In another terminal, inspect capture (from inside the broker, use the compose li
 docker compose exec kafka /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --list
 ```
 
-You should see `parcel.events`, `fuel.surcharge`, and the downstream topics the transform will write (`parcel.events.enriched`, `parcel.current`, `ops.sla.alerts`). Kafka UI at [http://localhost:8080](http://localhost:8080) shows the same.
+You should see `parcel.events`, `fuel.surcharge`, and the downstream topics the transform will write (`parcel.events.enriched`, `parcel.current`, `ops.sla.alerts`). Kafka UI at [http://localhost:8085](http://localhost:8085) shows the same.
 
 Details: [`capture/README.md`](capture/README.md).
 

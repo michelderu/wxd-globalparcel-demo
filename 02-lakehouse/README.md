@@ -162,8 +162,9 @@ wxd-pg-postgres-0                                 1/1     Running     0         
 
 ```bash
 nohup kubectl port-forward -n wxd service/lhconsole-ui-svc 6443:443 2>&1 &
-nohup kubectl port-forward -n wxd service/ibm-lh-minio-svc 9001:9001 2>&1 &
-nohup kubectl port-forward -n wxd service/ibm-lh-mds-thrift-svc 8381:8381 2>&1 &
+# You don't need the following services in this lab:
+#nohup kubectl port-forward -n wxd service/ibm-lh-minio-svc 9001:9001 2>&1 &
+#nohup kubectl port-forward -n wxd service/ibm-lh-mds-thrift-svc 8381:8381 2>&1 &
 ```
 
 > [!TIP]
@@ -171,7 +172,7 @@ nohup kubectl port-forward -n wxd service/ibm-lh-mds-thrift-svc 8381:8381 2>&1 &
 > - **ibm-lh-minio-svc (9001:9001)** — MinIO object storage admin console, where you can observe and manage the underlying storage buckets used by the lakehouse.
 > - **ibm-lh-mds-thrift-svc (8381:8381)** — Metadata Service endpoint, used internally by watsonx.data for catalog and privilege operations (not typically needed for direct user interaction).
 
-Open **`https://localhost:6443/`**. Expect a browser warning for the Development/TLS certificate—continue for local demos only (`ibmlhadmin` / `password` unless you changed defaults).
+Open **[https://localhost:6443/](https://localhost:6443/)**. Expect a browser warning for the Development/TLS certificate—continue for local demos only (`ibmlhadmin` / `password` unless you changed defaults).
 
 ---
 
@@ -180,6 +181,10 @@ Open **`https://localhost:6443/`**. Expect a browser warning for the Development
 The capture job wrote parcel scans to Kafka and materialized them under `01-streamhouse/data/warehouse/`. This chapter loads **that same business** into watsonx.data so Presto is the SQL surface for the current view.
 
 ### Export StreamHouse parcel events (like TableFlow in the cloud)
+
+For the sake of demonstration, we'll export the table data from the materialized open table format (Parquet) into CSV. This makes it simple to use the built-in import functionality in watsonx.data via Spark—CSV is universally supported and easy to inspect.
+
+In production or more advanced scenarios, you can **skip this CSV export step** and point watsonx.data **directly to the Parquet files** under `01-streamhouse/data/warehouse/`. The lakehouse engines (like Iceberg and Presto) natively support open table formats like Parquet, so direct ingestion is both possible and typical outside this hands-on workflow.
 
 From `02-lakehouse/`:
 
@@ -191,13 +196,20 @@ This writes **`shipping_history.csv`** here. If Tableflow has not produced wareh
 
 ### Load CSV into watsonx.data
 
-1. Open `https://localhost:6443/` and sign in (`ibmlhadmin` / `password`).
+1. Open [https://localhost:6443/](https://localhost:6443/) and sign in (`ibmlhadmin` / `password`).
 2. Navigate to **Infrastructure manager → Add component → IBM Spark** (`Next`).
 3. Display name (for example `spark-01`); associate catalog **`iceberg_bucket`**.
 4. Navigate to **Data manager → `iceberg_data` → ⋮ → Create schema** named **`shipping_backend`**.
 5. Under **`shipping_backend` → ⋮ → Create table from file** and select **`shipping_history.csv`** which you just generated in **`02-lakehouse/`**.
 6. Target table **`shipping_history`**, select your just created Spark engine, then click **Done**.
 7. On the **Ingestion history** tab click the refresh button to check the progress.
+
+> [!NOTE]
+> You'll see the states roll through": Acceptec, Starting, Started and Finished. This is the Spark workers taking on the ingestion job and creating Parquet files.
+
+> [!TIP]
+> It may take some time to see the `shipping_backend` schema to show up in **Data Manager**.
+> In case it still does not show up, you may need to restart Presto: `kubectl rollout restart deployment/ibm-lh-presto -n wxd`.
 
 ### Query delayed shipments
 
@@ -228,7 +240,7 @@ Register that broker as a watsonx.data catalog so Presto can JOIN Iceberg histor
 1. Navigate to **Infrastructure manager → Add component → Apache Kafka**.
 2. Fields:
    - Display name: `kafka-01`
-   - Hostname: `$KAFKA_HOST_IP` (set when you started compose)
+   - Hostname: run `hostname -I | awk '{print $1}'` (this was set when you started compose)
    - Port: `9092`
    - SASL: off (PLAINTEXT, no username or password)
 3. Click **Test connection**.

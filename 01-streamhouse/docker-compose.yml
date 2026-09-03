@@ -35,7 +35,8 @@ services:
   kafka-ui:
     image: kafbat/kafka-ui:v1.2.0
     ports:
-      - "8080:8080"
+      # 8085 on the host: chapter 04 watsonx Orchestrate publishes 8080.
+      - "8085:8080"
     environment:
       DYNAMIC_CONFIG_ENABLED: "true"
       KAFKA_CLUSTERS_0_NAME: globalparcel

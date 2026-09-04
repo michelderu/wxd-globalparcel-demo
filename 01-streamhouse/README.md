@@ -4,14 +4,24 @@
 
 Part of the **[StreamHouse workshop](../README.md)** — first chapter: put Global Parcel on Kafka, shift-left into Cassandra, OpenSearch, and Iceberg, and open the control tower on `:8088`.
 
-Work from **this directory**. Keep `PYTHONPATH=.`. Use the workshop venv from the parent folder (`source ../.venv/bin/activate`).
+## Working directory
+
+Several steps below **block the terminal** (producer, transform, materialize, tower). Leave each running and open a **new terminal** for the next step.
+
+Create the workshop venv once from the **repo root**, then enter this chapter:
+
+```bash
+python -m venv .venv
+cd 01-streamhouse
+source ../.venv/bin/activate
+```
+
+Install dependencies once (covers chapter 03 too):
 
 ```bash
 pip install -U pip
 pip install -r requirements.txt
 ```
-
-That also covers chapter 03 (same FastAPI, Cassandra, and OpenSearch clients).
 
 ### 1. Capture — put Global Parcel in motion
 
@@ -37,17 +47,19 @@ curl -s http://localhost:9200
 docker compose exec kafka /opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092
 ```
 
-Then put the business on the bus:
+Then put the business on the bus (**blocks** — keep this terminal open):
 
 ```bash
-PYTHONPATH=. python -m capture.produce
+python -m capture.produce
 ```
 
-This creates the topics, replays historical journeys (`PCL-000001` …), and streams live scans (`PCL-LIVE-…`) plus fuel surcharge ticks. Keep it running.
+This creates the topics, replays historical journeys (`PCL-000001` …), and streams live scans (`PCL-LIVE-…`) plus fuel surcharge ticks.
 
-In another terminal, inspect capture (from inside the broker, use the compose listener):
+**New terminal** (activate again) to inspect capture:
 
 ```bash
+cd 01-streamhouse
+source ../.venv/bin/activate
 docker compose exec kafka /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --list
 ```
 
@@ -59,13 +71,17 @@ Details: [`capture/README.md`](capture/README.md).
 
 In production this job is **Apache Flink**: a continuous SQL pipeline that joins live scans to the latest fuel surcharge, prices the invoice, flags SLA risk, and writes once into Cassandra, OpenSearch, and Kafka. The contract is in [`transform/flink/shift_left.sql`](transform/flink/shift_left.sql) — the same shape Confluent Cloud for Apache Flink runs.
 
-On the laptop you run a **Python script** instead of standing up a Flink cluster. It implements that SQL so you can read it, change it, and watch each engine fill in a second terminal:
+On the laptop you run a **Python script** instead of standing up a Flink cluster.
+
+**New terminal** (activate), leave produce running:
 
 ```bash
-PYTHONPATH=. python -m transform.shift_left
+cd 01-streamhouse
+source ../.venv/bin/activate
+python -m transform.shift_left
 ```
 
-Each scan is priced against the latest surcharge and SLA-flagged, then written to:
+This job **blocks**. Each scan is priced against the latest surcharge and SLA-flagged, then written to:
 
 - **Cassandra** `globalparcel_ops.parcel_events_by_parcel` — ledger
 - **OpenSearch** `parcel-events-live` — customer search
@@ -79,11 +95,17 @@ Details: [`transform/README.md`](transform/README.md).
 
 In production this is **Confluent Tableflow**: Kafka topics become Apache Iceberg tables so Presto (and watsonx.data) query the stream as a lakehouse, without a handmade ETL job.
 
-On the laptop you run a **Python script** instead of Tableflow in the cloud. It writes the same tables as Parquet under `data/warehouse/` so the control tower can snapshot a current view:
+On the laptop you run a **Python script** instead of Tableflow in the cloud.
+
+**New terminal** (activate):
 
 ```bash
-PYTHONPATH=. python -m tableflow.materialize
+cd 01-streamhouse
+source ../.venv/bin/activate
+python -m tableflow.materialize
 ```
+
+This job **blocks** and writes Parquet under `data/warehouse/` so the control tower can snapshot a current view.
 
 The SQL in [`query/current_view.sql`](query/current_view.sql) is what you run in watsonx.data next ([`../02-lakehouse/README.md`](../02-lakehouse/README.md)).
 
@@ -91,11 +113,15 @@ Details: [`tableflow/README.md`](tableflow/README.md), [`query/README.md`](query
 
 ### 4. Run — control tower
 
+**New terminal** (activate):
+
 ```bash
-PYTHONPATH=. uvicorn apps.api:app --host 0.0.0.0 --port 8088
+cd 01-streamhouse
+source ../.venv/bin/activate
+uvicorn apps.api:app --host 0.0.0.0 --port 8088
 ```
 
-Open [http://localhost:8088/tower/](http://localhost:8088/tower/) — the current picture of the business from the warehouse materialization.
+This **blocks**. Open [http://localhost:8088/tower/](http://localhost:8088/tower/) — the current picture of the business from the warehouse materialization.
 
 Details: [`apps/README.md`](apps/README.md). Next: query this business in watsonx.data ([`../02-lakehouse/README.md`](../02-lakehouse/README.md)). Customer tracking and audit are chapter 03 ([`../03-realtime-operations/README.md`](../03-realtime-operations/README.md)).
 

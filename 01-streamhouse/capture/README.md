@@ -25,7 +25,7 @@ You can inspect these topics in real-time through CLI commands or the Kafka UI. 
 
 
 ```bash
-PYTHONPATH=. python -m capture.produce
+python -m capture.produce
 ```
 
 Open [Kafka UI](http://localhost:8085) or consume like `cqlsh` (after produce is running — that is when topics exist):

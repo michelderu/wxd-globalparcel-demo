@@ -8,7 +8,16 @@ Part of the **[StreamHouse workshop](../README.md)** — the **operate** chapter
 
 The transform in chapter 01 already lands every scan in both engines. This chapter **runs** those products: customer tracking on search, audit on the ledger.
 
-Work from **this directory**. Keep `PYTHONPATH=.`. Use the workshop venv from the parent folder (`source ../.venv/bin/activate`) — FastAPI and the engine clients were installed in chapter 01. Leave chapter 01 Compose (Cassandra, OpenSearch) and the shift-left job running.
+## Working directory
+
+FastAPI and the engine clients were installed in chapter 01. Leave chapter 01 Compose (Cassandra, OpenSearch) and the blocking jobs (produce, shift-left, …) running in their terminals.
+
+**New terminal** (activate):
+
+```bash
+cd 03-realtime-operations
+source ../.venv/bin/activate   # same workshop venv as chapter 01
+```
 
 - **DataStax HCD (based on Apache Cassandra)** as the **trusted transactional backend ledger**: always-on, unbreakable-by-design architecture, and linearly scalable high-throughput writes.
 - **OpenSearch** as the **customer-facing tracking search frontend**: low-latency lookup for parcel status, timeline retrieval, and support/operations drill-down.
@@ -65,13 +74,13 @@ You should see counts growing while `transform.shift_left` runs.
 
 ### 2. Run the ops apps 🖥️
 
-From **this directory**:
+From **this directory** (after activate above). This **blocks** — leave it running:
 
 ```bash
-PYTHONPATH=. uvicorn apps.api:app --host 0.0.0.0 --port 8081
+uvicorn apps.api:app --host 0.0.0.0 --port 8081
 ```
 
-One process on `:8081` serves both UIs and their JSON. Details: [`apps/README.md`](apps/README.md).
+One process on `:8081` serves both UIs and their JSON. Details: [`apps/README.md`](apps/README.md). Later steps (browser, Dashboards, `cqlsh`) do not need another Python shell; if you open a new terminal for CLI checks, activate again first.
 
 | You want to show | Open | Reads |
 | --- | --- | --- |

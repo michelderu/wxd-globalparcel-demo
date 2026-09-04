@@ -90,12 +90,7 @@ Suggested parcels: `PCL-LIVE-000001`, `PCL-000001`.
 - For chapter 02: **kind**, **kubectl**, **helm** (watsonx.data Developer Edition) — see [container-fundamentals](https://github.com/michelderu/container-fundamentals)
 - For chapter 04: watsonx Orchestrate ADK credentials (16 GB RAM recommended)
 
-```bash
-python -m venv .venv
-source .venv/bin/activate
-```
-
-Then open **[`01-streamhouse/README.md`](01-streamhouse/README.md)** — packages, Compose, capture, transform, tableflow, tower. Then `02` → `03` → `04`.
+Start at **[`01-streamhouse/README.md`](01-streamhouse/README.md)**, then `02` → `03` → `04`. Several steps **block** the shell — open a **new terminal** for the next command and run that chapter’s `source ../.venv/bin/activate` again; a fresh shell does not inherit the previous one.
 
 ---
 

@@ -41,13 +41,15 @@ flowchart TB
 ---
 
 ## Working directory
-**Assume your shell working directory is `02-lakehouse/`.** Capture and tableflow should already have written `01-streamhouse/data/warehouse/`.
+
+Capture and tableflow should already have written `01-streamhouse/data/warehouse/`. Leave chapter 01 blocking jobs (produce, shift-left, materialize, tower) running in their terminals.
+
+**New terminal** (activate):
 
 ```bash
 cd 02-lakehouse
+source ../.venv/bin/activate   # same workshop venv as chapter 01
 ```
-
-The chapter 01 venv already has **pyarrow** for the warehouse export. No extra `pip install` here.
 
 ---
 
@@ -186,9 +188,11 @@ For the sake of demonstration, we'll export the table data from the materialized
 
 In production or more advanced scenarios, you can **skip this CSV export step** and point watsonx.data **directly to the Parquet files** under `01-streamhouse/data/warehouse/`. The lakehouse engines (like Iceberg and Presto) natively support open table formats like Parquet, so direct ingestion is both possible and typical outside this hands-on workflow.
 
-From `02-lakehouse/`:
+**New terminal** (activate):
 
 ```bash
+cd 02-lakehouse
+source ../.venv/bin/activate
 PYTHONPATH=../01-streamhouse python scripts/export_streamhouse_history.py
 ```
 

@@ -47,15 +47,13 @@ Official references:
 
 ## Working directory
 
+Leave chapters 01–03 blocking jobs running (Compose, produce, shift-left, ops API on `:8081`, …). 
+
+**New terminal** (activate):
+
 ```bash
 cd 04-accelerate-ai
-```
-
-Activate the repository virtual environment:
-
-```bash
-source ../.venv/bin/activate
-python --version   # expect 3.11+
+source ../.venv/bin/activate   # same workshop venv as chapter 01
 ```
 
 ---
@@ -264,7 +262,7 @@ python scripts/chat_demo.py --interactive
 
 Host/API URLs and Docker bridge settings: **[delivery driver notes](../03-realtime-operations/README.md#delivery-driver-notes)** (use `172.17.0.1:8081` for Langflow on Linux).
 
-With the ops API running from `03-realtime-operations/` (`PYTHONPATH=. uvicorn apps.api:app … --port 8081`) and OpenSearch indexed:
+With the ops API running from `03-realtime-operations/` (`uvicorn apps.api:app … --port 8081`) and OpenSearch indexed:
 
 1. Import `tools/langflow/parcel_opensearch_customer.json` at [http://localhost:7861](http://localhost:7861) (optional: test playground with `PCL-LIVE-000001`)
 2. Click "Share → MCP Server" and ensure "PARCEL_OPENSEARCH_CUSTOMER" is set under `Flows/Tools`.

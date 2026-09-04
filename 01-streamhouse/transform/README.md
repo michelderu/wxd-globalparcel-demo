@@ -22,7 +22,7 @@ For every scan:
 | `ops.sla.alerts` | Kafka | Operations only |
 
 ```bash
-PYTHONPATH=. python -m transform.shift_left
+python -m transform.shift_left
 ```
 
 Wait for Cassandra to be healthy before this command (first boot ~1–2 minutes). `--skip-ibm` is Kafka-only, for debugging.

@@ -14,7 +14,7 @@ Confluent Tableflow materializes Kafka topics as Apache Iceberg tables so analyt
 Warehouse files land in `data/warehouse/` as Parquet snapshots of those streams. In production this is Apache Iceberg on object storage plus a REST catalog; the **concept** is identical: the stream and the table are the same data.
 
 ```bash
-PYTHONPATH=. python -m tableflow.materialize
+python -m tableflow.materialize
 ```
 
 **IBM query plane:** after this laptop materialization, load the same business into **watsonx.data** Iceberg and federate live Kafka `fuel.surcharge`. See [`../../02-lakehouse/README.md`](../../02-lakehouse/README.md).

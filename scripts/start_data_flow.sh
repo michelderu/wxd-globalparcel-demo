@@ -85,7 +85,7 @@ Data flow running (Ctrl+C does not stop these — kill via PIDs under ${RUN_DIR}
   shift_left   ${RUN_DIR}/shift_left.log
   tableflow    ${RUN_DIR}/tableflow.log
 
-Suggested parcels once data lands: PCL-000001, PCL-LIVE-000001
+Suggested parcel once data lands: PCL-LIVE-000001
   Control tower  http://localhost:8088/tower/
   Customer UI    http://localhost:8081/customer-ui/
   Audit UI       http://localhost:8081/audit-ui/

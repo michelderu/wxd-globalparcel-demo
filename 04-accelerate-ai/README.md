@@ -73,7 +73,7 @@ orchestrate --version
 The ADK **defaults to Lima + QEMU on Linux**. You can also witch to user-managed Docker **once** before your first `server start` (useful on Linux):
 
 ```bash
-# Optional on Linux
+# Useful on Linux for optimal resource consumption
 orchestrate settings docker host --user-managed
 ```
 
@@ -195,10 +195,10 @@ flowchart TB
     CC -->|"cassandra-driver\nhost.docker.internal or 172.17.0.1:9042"| CASS
 ```
 
-With Cassandra running (`PCL-000001`, `PCL-LIVE-000001`), smoke-test against local Cassandra (host, not wxO container):
+With Cassandra running (`PCL-LIVE-000001`), smoke-test against local Cassandra (host, not wxO container):
 
 ```bash
-CASSANDRA_HOST=127.0.0.1 python scripts/test_ledger_tools.py PCL-000001
+CASSANDRA_HOST=127.0.0.1 python scripts/test_ledger_tools.py PCL-LIVE-000001
 ```
 > [!TIP]
 > On Linux, wxO tools reach host Cassandra via `host.docker.internal`; if that fails, set `CASSANDRA_HOST=172.17.0.1` before import. See **[tools/README.md](tools/README.md)**.
@@ -227,9 +227,9 @@ orchestrate tools list
 
 Now run these example chat prompts in the [watsonx Orchestrate UI](http://localhost:3000/chat) (select **Global Parcel Assistant** Agent):
 
-- “What is the latest status of PCL-000001 in the ledger?”
-- “What delivery notes did drivers leave for PCL-000001?”
-- “Reconcile a dispute, customer claims NOT DELIVERED for PCL-000001 — quote the latest driver note.”
+- “What is the latest status of PCL-LIVE-000001 in the ledger?”
+- “What delivery notes did drivers leave for PCL-LIVE-000001?”
+- “Reconcile a dispute, customer claims NOT DELIVERED for PCL-LIVE-000001 — quote the latest driver note.”
 - "What does the customer ui say?"
 
 For the last question, you'll see that we don't truly have a single pane of glass yet. This is holding back our employees efficiency. So let's fix that in the later steps.
@@ -243,7 +243,7 @@ At this point, you've imported the agents and tools and have the backend service
 
 When you run:
 ```bash
-python scripts/chat_demo.py --question "Reconcile a dispute, customer claims NOT DELIVERED for PCL-000001."
+python scripts/chat_demo.py --question "Reconcile a dispute, customer claims NOT DELIVERED for PCL-LIVE-000001."
 ```
 you're simulating a chat interaction—just like in the UI—where the agent processes a natural language question and calls the required tools behind the scenes.
 

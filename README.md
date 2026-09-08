@@ -79,7 +79,7 @@ Confluent Cloud **Tableflow** is the managed Kafka→Iceberg path watsonx.data f
 | Kafka UI | http://localhost:8085 | Capture topics (`parcel.events`, `fuel.surcharge`) |
 | watsonx.data console | https://localhost:6443 | Iceberg + federated Kafka |
 
-Suggested parcels: `PCL-LIVE-000001`, `PCL-000001`.
+Suggested parcel: `PCL-LIVE-000001`.
 
 ---
 
@@ -107,6 +107,12 @@ Then start the capture → shift-left → tableflow pipelines (background; logs 
 ./scripts/start_data_flow.sh
 ```
 
+Stop those pipelines (Compose / UIs stay up):
+
+```bash
+./scripts/stop_data_flow.sh
+```
+
 To wipe Kafka topics, Cassandra/OpenSearch tables, and the local warehouse (recreated by produce → shift_left → tableflow):
 
 ```bash
@@ -125,6 +131,6 @@ For watsonx.data, put `watsonx.data-developer-edition-installer.tar` (or the ext
 | Transforming | Shift-left job writing **Cassandra + OpenSearch + Iceberg** |
 | Querying real-time data | watsonx.data Presto + control tower |
 | Current view of the business | Control tower, and federated surcharge joins |
-| Historical and live | `PCL-000001` (replay) and `PCL-LIVE-000001` (now) |
+| Live operations | `PCL-LIVE-000001` on ledger, search, and chat |
 | Applications, analytics, and AI | Customer UI, lakehouse SQL, Orchestrate |
 | Fit-for-purpose engines | Ledger ≠ search ≠ lakehouse — one capture |

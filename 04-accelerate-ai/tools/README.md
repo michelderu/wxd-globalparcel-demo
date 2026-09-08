@@ -59,11 +59,11 @@ Optional overrides:
 
 ```bash
 cd 04-accelerate-ai
-CASSANDRA_HOST=127.0.0.1 python scripts/test_ledger_tools.py PCL-000001
+CASSANDRA_HOST=127.0.0.1 python scripts/test_ledger_tools.py PCL-LIVE-000001
 ```
 
 ## Example agent prompts
 
-- “What delivery notes are on the ledger for **PCL-000001**?”
+- “What delivery notes are on the ledger for **PCL-LIVE-000001**?”
 - “Show the Cassandra timeline for **PCL-LIVE-000001**.”
-- “Customer says **DELIVERED** for **PCL-000001** — reconcile and quote the latest driver note.”
+- “Customer says **DELIVERED** for **PCL-LIVE-000001** — reconcile and quote the latest driver note.”

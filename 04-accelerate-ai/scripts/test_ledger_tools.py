@@ -23,7 +23,7 @@ def show(label: str, result) -> None:
 
 
 def main() -> None:
-    parcel_id = sys.argv[1] if len(sys.argv) > 1 else "PCL-000001"
+    parcel_id = sys.argv[1] if len(sys.argv) > 1 else "PCL-LIVE-000001"
     show("get_parcel_latest_status", get_parcel_latest_status(parcel_id))
     show("get_parcel_delivery_notes", get_parcel_delivery_notes(parcel_id))
     timeline = get_parcel_timeline(parcel_id)

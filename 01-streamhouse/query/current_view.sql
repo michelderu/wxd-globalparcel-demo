@@ -21,7 +21,7 @@ FROM globalparcel.parcel_current
 GROUP BY hub_code, hub_city
 ORDER BY sla_at_risk DESC, in_flight DESC;
 
--- 3. Combine historical and live: delay rate by origin over the whole captured stream
+-- 3. Delay rate by origin over the captured stream
 SELECT
   origin_hub,
   COUNT(*) AS scans,

@@ -13,7 +13,7 @@ def reconcile_parcel_dispute(parcel_id: str, customer_claimed_status: str) -> di
     what the customer says and what was durably written to the transactional ledger.
 
     Args:
-        parcel_id: Parcel identifier (for example PCL-000001).
+        parcel_id: Parcel identifier (for example PCL-LIVE-000001).
         customer_claimed_status: Status the customer or app claims (for example DELIVERED).
 
     Returns:

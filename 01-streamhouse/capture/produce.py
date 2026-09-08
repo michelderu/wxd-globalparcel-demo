@@ -2,10 +2,7 @@
 
 Run from `01-streamhouse/`:
 
-    PYTHONPATH=. python -m capture.produce
-
-PYTHONPATH=. makes `shared` and `capture` importable. `-m capture.produce`
-runs this file as a module so those imports resolve.
+    python -m capture.produce
 
 This is the StreamHouse capture step only. It writes to Apache Kafka
 (localhost:9092). It does not write Cassandra, OpenSearch, or Iceberg —
@@ -14,11 +11,10 @@ This is the StreamHouse capture step only. It writes to Apache Kafka
 Default sequence:
   1. Create topics (compacted: fuel.surcharge, parcel.current).
   2. Publish a full fuel-surcharge snapshot, then tick prices in a background thread.
-  3. Replay completed journeys (PCL-000001 …) so history exists on the same topic as live.
-  4. Stream live scans forever (PCL-LIVE-…) until Ctrl+C.
+  3. Stream live scans forever (PCL-LIVE-…) until Ctrl+C.
 
 Topics this process publishes:
-  parcel.events    — hub scans (bootstrap + live)
+  parcel.events    — live hub scans (PCL-LIVE-*)
   fuel.surcharge   — latest price per region (compacted)
 
 Downstream topics are created empty so the transform can write them:
@@ -47,7 +43,6 @@ from shared.domain import (
     JourneyCursor,
     LANES,
     build_scan_event,
-    generate_completed_journey,
     is_done,
 )
 from shared.kafka_io import ensure_topics, producer
@@ -75,27 +70,6 @@ def produce_surcharge_snapshot(prod, surcharge: dict[str, float], updated_at: da
             value={"region": region, "fuel_surcharge": round(value, 2), "updated_at": ts},
         )
     prod.flush()
-
-
-def bootstrap_history(prod, parcels: int, seed: int) -> int:
-    """Replay finished journeys onto parcel.events so SQL can mix history and live.
-
-    Each PCL-00000N walks a full lane (label → hubs → delivered) with timestamps
-    in the last few days, then those scans sit on the same topic as PCL-LIVE-*.
-    """
-    rng = random.Random(seed)
-    base = datetime.now(UTC) - timedelta(days=3)
-    emitted = 0
-    for i in range(1, parcels + 1):
-        start = base + timedelta(minutes=rng.randint(0, 60 * 48))
-        for event in generate_completed_journey(f"PCL-{i:06d}", rng, start=start):
-            prod.send(TOPIC_EVENTS, key=event["parcel_id"], value=event)
-            emitted += 1
-        if i % 20 == 0:
-            prod.flush()
-            print(f"bootstrap parcels={i} events={emitted}")
-    prod.flush()
-    return emitted
 
 
 def stream_live(
@@ -167,7 +141,6 @@ def stream_surcharge(prod, *, interval_seconds: float, seed: int) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--bootstrap-parcels", type=int, default=80, help="Completed journeys to replay first.")
     parser.add_argument("--events-per-second", type=float, default=6.0)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--max-events", type=int, default=0, help="Stop after N live scans; 0 means run forever.")
@@ -192,9 +165,6 @@ def main() -> None:
             daemon=True,
         )
         ticks.start()
-        if args.bootstrap_parcels:
-            n = bootstrap_history(prod, args.bootstrap_parcels, args.seed)
-            print(f"Captured {args.bootstrap_parcels} historical journeys ({n} scans) into {TOPIC_EVENTS}.")
         stream_live(
             prod,
             events_per_second=args.events_per_second,

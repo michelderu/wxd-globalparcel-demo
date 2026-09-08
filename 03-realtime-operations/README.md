@@ -101,7 +101,7 @@ Open [http://localhost:8081/audit-ui/](http://localhost:8081/audit-ui/).
 
 This dashboard is the **Cassandra source-of-truth read path** for dispute workflows.
 
-1. Load `PCL-000001` (replayed history) or `PCL-LIVE-000001` (live).
+1. Load `PCL-LIVE-000001`.
 2. Compare **customer app status** with **Cassandra latest status**.
 3. Use the map + timeline; look for `WX_DELAY` and **delivery driver notes**.
 4. Close the dispute using Cassandra as the authoritative evidence trail.
@@ -141,7 +141,7 @@ docker compose exec -T cassandra cqlsh <<'EOF'
 USE globalparcel_ops;
 SELECT parcel_id, event_ts, status, hub_code, region, delivery_note
 FROM parcel_events_by_parcel
-WHERE parcel_id = 'PCL-000001';
+WHERE parcel_id = 'PCL-LIVE-000001';
 EOF
 ```
 

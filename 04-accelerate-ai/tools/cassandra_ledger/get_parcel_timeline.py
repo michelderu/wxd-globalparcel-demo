@@ -14,7 +14,7 @@ def get_parcel_timeline(parcel_id: str) -> dict:
     in globalparcel_ops.parcel_events_by_parcel.
 
     Args:
-        parcel_id: Parcel identifier (for example PCL-000001 or PCL-LIVE-000001).
+        parcel_id: Parcel identifier (for example PCL-LIVE-000001).
 
     Returns:
         dict: Parcel id, event count, and timeline ordered newest event first.

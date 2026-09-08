@@ -53,7 +53,7 @@ Then put the business on the bus (**blocks** — keep this terminal open):
 python -m capture.produce
 ```
 
-This creates the topics, replays historical journeys (`PCL-000001` …), and streams live scans (`PCL-LIVE-…`) plus fuel surcharge ticks.
+This creates the topics and streams live scans (`PCL-LIVE-…`) plus fuel surcharge ticks. Chapter 02 exports the materialized lakehouse to CSV for watsonx.data.
 
 **New terminal** (activate again) to inspect capture:
 

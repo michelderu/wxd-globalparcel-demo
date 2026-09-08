@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import random
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from typing import Any
 
 from shared.config import BASE_RATE_BY_REGION, DEFAULT_SURCHARGE
@@ -225,24 +225,3 @@ def enrich_event(event: dict[str, Any], surcharge_by_region: dict[str, float]) -
     enriched["sla_risk"] = sla_risk
     enriched["sla_reason"] = sla_reason
     return enriched
-
-
-def generate_completed_journey(
-    parcel_id: str,
-    rng: random.Random,
-    *,
-    start: datetime,
-) -> list[dict[str, Any]]:
-    """Full lane from LABEL_CREATED through DELIVERED, used only for history bootstrap."""
-    lane = list(rng.choice(LANES))
-    eta = start + timedelta(hours=rng.randint(20, 96))
-    cursor = JourneyCursor(parcel_id=parcel_id, lane=lane, step=0, customer_eta=eta)
-    events: list[dict[str, Any]] = []
-    event_time = start
-    while True:
-        events.append(build_scan_event(cursor, rng, event_ts=event_time, delay_rate=0.07))
-        cursor.step += 1
-        if is_done(cursor.lane, cursor.step):
-            break
-        event_time += timedelta(hours=rng.randint(1, 8), minutes=rng.randint(5, 50))
-    return events

@@ -13,7 +13,7 @@ def get_parcel_delivery_notes(parcel_id: str) -> dict:
     weather delays, van route details — that the customer OpenSearch view does not show.
 
     Args:
-        parcel_id: Parcel identifier (for example PCL-000001).
+        parcel_id: Parcel identifier (for example PCL-LIVE-000001).
 
     Returns:
         dict: Newest-first notes with status and timestamp for each event.

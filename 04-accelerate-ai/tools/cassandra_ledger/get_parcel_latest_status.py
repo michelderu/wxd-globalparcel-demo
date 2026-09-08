@@ -13,7 +13,7 @@ def get_parcel_latest_status(parcel_id: str) -> dict:
     state (status, hub, region, ETA) without the full event history.
 
     Args:
-        parcel_id: Parcel identifier (for example PCL-000001 or PCL-LIVE-000001).
+        parcel_id: Parcel identifier (for example PCL-LIVE-000001).
 
     Returns:
         dict: Latest ledger status fields for the parcel.

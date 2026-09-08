@@ -92,6 +92,29 @@ Suggested parcels: `PCL-LIVE-000001`, `PCL-000001`.
 
 Start at **[`01-streamhouse/README.md`](01-streamhouse/README.md)**, then `02` → `03` → `04`. Several steps **block** the shell — open a **new terminal** for the next command and run that chapter’s `source ../.venv/bin/activate` again; a fresh shell does not inherit the previous one.
 
+
+## Quick start (after running through the whole lab once)
+
+After prerequisites are in place, install-if-needed and start chapters **01–04** services (Compose, watsonx.data, tower, ops API, Orchestrate + Cassandra agent + chat). Does **not** start produce / shift-left / tableflow, and does **not** start Langflow:
+
+```bash
+./scripts/start_services.sh
+```
+
+Then start the capture → shift-left → tableflow pipelines (background; logs under `.run/`):
+
+```bash
+./scripts/start_data_flow.sh
+```
+
+To wipe Kafka topics, Cassandra/OpenSearch tables, and the local warehouse (recreated by produce → shift_left → tableflow):
+
+```bash
+./scripts/prune_data.sh
+```
+
+For watsonx.data, put `watsonx.data-developer-edition-installer.tar` (or the extracted folder) under `02-lakehouse/` or the repo root first. For Orchestrate, provide `04-accelerate-ai/.env` yourself (the script never creates or edits it).
+
 ---
 
 ## Concepts the demo is designed to land

@@ -25,27 +25,55 @@ session = None
 os_client: OpenSearch | None = None
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    global cluster, session, os_client
+def ensure_cassandra() -> bool:
+    """Connect (or reconnect) to the ledger. Keyspace appears only after shift_left runs."""
+    global cluster, session
+    if session is not None:
+        return True
     try:
+        if cluster is not None:
+            try:
+                cluster.shutdown()
+            except Exception:
+                pass
+            cluster = None
         cluster = Cluster([CASSANDRA_HOST], port=CASSANDRA_PORT)
         session = cluster.connect(CASSANDRA_KEYSPACE)
+        return True
     except Exception:
         cluster = None
         session = None
+        return False
+
+
+def ensure_opensearch() -> bool:
+    global os_client
+    if os_client is not None:
+        return True
     try:
         os_client = OpenSearch(hosts=[OPENSEARCH_URL])
         os_client.info()
+        return True
     except Exception:
         os_client = None
+        return False
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global cluster, session, os_client
+    ensure_cassandra()
+    ensure_opensearch()
     try:
         yield
     finally:
         if os_client is not None:
             os_client.close()
+            os_client = None
         if cluster is not None:
             cluster.shutdown()
+            cluster = None
+            session = None
 
 
 app = FastAPI(title="Global Parcel Realtime Ops", version="1.0.0", lifespan=lifespan)
@@ -79,14 +107,14 @@ def root() -> RedirectResponse:
 def health() -> dict[str, str]:
     return {
         "status": "ok",
-        "cassandra": "ok" if session is not None else "down",
-        "opensearch": "ok" if os_client is not None else "down",
+        "cassandra": "ok" if ensure_cassandra() else "down",
+        "opensearch": "ok" if ensure_opensearch() else "down",
     }
 
 
 @app.get("/api/audit/{parcel_id}")
 def get_audit(parcel_id: str) -> dict[str, Any]:
-    if session is None:
+    if not ensure_cassandra():
         raise HTTPException(status_code=503, detail="Cassandra session not ready")
 
     rows = session.execute(
@@ -138,7 +166,7 @@ def get_audit(parcel_id: str) -> dict[str, Any]:
 
 @app.get("/api/customer/{parcel_id}")
 def get_customer_view(parcel_id: str) -> dict[str, Any]:
-    if os_client is None:
+    if not ensure_opensearch():
         raise HTTPException(status_code=503, detail="OpenSearch client not ready")
 
     query = {

@@ -60,17 +60,7 @@ source ../.venv/bin/activate   # same workshop venv as chapter 01
 
 ## Hands-on flow
 
-### 1a) Linux (or self managed Container-VM): use Docker Engine, not QEMU/Lima
-
-The ADK **defaults to Lima + QEMU on Linux**. You can also witch to user-managed Docker **once** before your first `server start` (useful on Linux):
-
-```bash
-pip install -r requirements.txt
-python scripts/patch_langflow_ssrf.py
-orchestrate settings docker host --user-managed
-```
-
-### 1b) Install the ADK
+### 1) Install the ADK
 
 ```bash
 pip install -r requirements.txt
@@ -79,6 +69,13 @@ orchestrate --version
 ```
 > [!TIP]
 > `patch_langflow_ssrf.py` copies the installed ADK compose into `.adk/docker-compose.yml` and adds `LANGFLOW_SSRF_PROTECTION_ENABLED`. Re-run it (or use `./scripts/start_wxo.sh`) after any ADK upgrade — a new install restores stock compose, which does not pass extra `LANGFLOW_*` keys into the Langflow container.
+
+The ADK **defaults to Lima + QEMU on Linux**. You can also witch to user-managed Docker **once** before your first `server start` (useful on Linux):
+
+```bash
+# Optional on Linux
+orchestrate settings docker host --user-managed
+```
 
 ### 2) Configure credentials
 
